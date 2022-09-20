@@ -113,7 +113,7 @@ function calculateLoop() {
         player.loopStart = loopEnd;
         player.loopEnd = loopStart;
         player.reverse = true;
-        player.start(1, loopStart);
+        player.start(1, loopEnd);
     }
     isPlaying = true;
 }
