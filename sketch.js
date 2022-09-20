@@ -1,4 +1,5 @@
 // Define Global Variables
+let cnv;
 let x1 = 0,
     x2 = 0,
     y1 = 0,
@@ -25,7 +26,8 @@ const reverb = new Tone.Reverb({
 
 function setup() {
     // Create canvas and attch mouse events with callbacks
-    cnv = createCanvas(400, 400);
+    cnv = createCanvas(windowWidth, windowHeight);
+    cnv.style('display', 'block');
     cnv.mousePressed(getPressedPoint);
     cnv.mouseReleased(getReleasePoint);
     cnv.mouseWheel(trackPad);
@@ -37,19 +39,26 @@ function setup() {
     player.grainSize = grainSize;
     reverb.toDestination();
     player.chain(reverb);
+
+    pressedPoint = 0;
+    releasePoint = 1;
 }
 
 function draw() {
-    // Draw background and instructions
-    background(mouseX / 2, mouseY / 2, bgColors[bgIndex]);
+    // Draw background
+    if (mouseX < width && mouseX > 0 && mouseY < height && mouseY > 0) {
+        background(mouseX / 2, mouseY / 2, bgColors[bgIndex]);
+    }
+
+    // Draw instructions
     noStroke();
     let f = 100;
-    textSize(18);
-    textLeading(20);
+    textSize(30);
+    textLeading(30);
     textFont("serif");
     for (i = 0; i < instructions.length; i++) {
         fill(f);
-        text(instructions[i], 20, 20 * [i] + 20);
+        text(instructions[i], 10, 30 * [i] + 30);
         f += 15;
     }
 
@@ -59,30 +68,30 @@ function draw() {
     rect(x1, 0, x2 - x1, height);
 
     // Draw rect to represent grain size
-    let grainSizeDisplay = map(grainSize, 0.01, 2, 5, 300);
+    let grainSizeDisplay = map(grainSize, 0.01, 2, (width / 80), (height / 1.5));
     rectMode(CENTER);
     fill(255, 204, 0, 50);
     rect(width / 2, height / 2, grainSizeDisplay, grainSizeDisplay);
 
     // Affect player's tune and rate with mouseX and mouseY
-    if (mouseX < width) {
-        player.detune = (mouseX / 100) * 1200 - 2400;
+    if (mouseX < width && mouseX > 0) {
+        player.detune = (mouseX / (width / 4)) * 1200 - 2400;
     }
-    if (mouseY < height) {
-        player.playbackRate = mouseY / 200 + 0.05;
+    if (mouseY < height && mouseY > 0) {
+        player.playbackRate = mouseY / (height / 2) + 0.05;
     }
 }
 
 function getPressedPoint() {
     // Capture mouse pressed x and y
-    pressedPoint = mouseX / 400;
+    pressedPoint = mouseX / width;
     x1 = mouseX;
     y1 = mouseY;
 }
 
 function getReleasePoint() {
     // Capture mouse released x and y
-    releasePoint = mouseX / 400;
+    releasePoint = mouseX / width;
     x2 = mouseX;
     y2 = mouseY;
     // Calculate loop start and end points
@@ -113,6 +122,7 @@ function keyPressed() {
     // start and stop the player with the space bar
     if (key === " ") {
         if (!isPlaying) {
+            initializeTone();
             player.start(1, loopStart);
             isPlaying = true;
         } else {
@@ -156,4 +166,13 @@ function trackPad(event) {
         }
     }
     player.grainSize = grainSize;
+}
+
+async function initializeTone() {
+    await Tone.start();
+    console.log("audio context started");
+}
+
+function windowResized() {
+    resizeCanvas(windowWidth, windowHeight);
 }

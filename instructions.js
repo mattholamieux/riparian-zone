@@ -1,8 +1,9 @@
 const instructions = [
-    "click/drag to set loop points",
-    "mouse x controls pitch",
+    "P5_GRAIN:",
+    "space to start/stop",
     "mouse y controls rate",
-    "scroll up and down to change grain size",
+    "mouse x controls pitch",
+    "click/drag to set loop points",
     "left & right arrows to change sample",
-    "press space to pause",
+    "scroll up and down to change grain size"
 ];
