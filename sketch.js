@@ -6,7 +6,7 @@ let x1 = 0,
     y2 = 0;
 const bgColors = [100, 150, 250];
 let bgIndex = 0;
-const buffers = [buffer1, buffer2, buffer3, buffer4, buffer5, buffer6]; // Defined in buffers.js
+const buffers = [buffer1, buffer2, buffer3, buffer4, buffer5, buffer6, buffer7, buffer8, buffer9]; // Defined in buffers.js
 let bufferIndex = 0;
 let loopStart, loopEnd, pressedPoint, releasePoint;
 let isPlaying = false;
@@ -52,14 +52,14 @@ function draw() {
 
     // Draw instructions
     noStroke();
-    let f = 100;
+    let f = 80;
     textSize(30);
     textLeading(30);
     textFont("serif");
     for (i = 0; i < instructions.length; i++) {
         fill(f);
         text(instructions[i], 10, 30 * [i] + 30);
-        f += 15;
+        f += 10;
     }
 
     // Draw rect to indicate loop start and end
