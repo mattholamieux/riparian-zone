@@ -5,13 +5,28 @@
     <link rel="stylesheet" href="style.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/1.4.1/p5.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/tone/14.8.9/Tone.js" integrity="sha512-nUjml8mN4CNYqBAy0ndDrd8pJV/eTtBNDsnvNtPqozx9/BccUeWSoKW14qWkQUnhuh8E3m+yra3qdzM68lqPEQ==" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.6.3.min.js"></script>
     <meta charset="utf-8" />
 </head>
 
 <body>
+    <div id="canvas-holder"></div>
+    <label class="switch">
+        <input type="checkbox" id="recBox">
+        <span class="slider"></span>
+    </label>
+
+    <label class="custom-file-upload">
+        <input id="audio_file" type="file" accept="audio/*" />
+        Upload
+    </label>
+
+    <audio id="myAudio" controls></audio>
+    <script src="recorder.js"></script>
     <script src="buffers.js"></script>
     <script src="instructions.js"></script>
     <script src="sketch.js"></script>
+    <script src="WavAudioEncoder.js"></script>
 </body>
 
 </html>
