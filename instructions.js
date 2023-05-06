@@ -1,8 +1,26 @@
-const instructions = [
+const mainInstructions = [
+    // "JS_MANGL",
     "space to start/stop",
-    "mouse y controls rate",
-    "mouse x controls pitch",
     "click/drag to set loop points",
-    "left & right arrows to change sample",
-    "scroll up and down to change grain size"
+    "left & right arrows change source",
+    "1, 2, 3, 4 for more options"
 ];
+
+const secondaryInstructions = [
+    "mouse x controls pitch",
+    "mouse y controls rate",
+    "scroll ↕ controls grain size",
+    "scroll ↔ controls grain overlap",
+    "mouse x controls filter frequency",
+    "mouse x controls filter resonance",
+    "scroll ↕ controls bit reduction",
+    "scroll ↔ controls waveshaper",
+    "mouse x controls delay time",
+    "mouse x controls delay feedback",
+    "scroll ↕ controls delay amount",
+    "scroll ↔ controls reverb amount",
+    "nothing",
+    " ",
+    " ",
+    " "
+]

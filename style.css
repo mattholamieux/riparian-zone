@@ -72,7 +72,7 @@ input[type="file"] {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: #ccc;
+    background-color: aliceblue;
     -webkit-transition: .4s;
     transition: .4s;
 }
@@ -88,18 +88,15 @@ input[type="file"] {
     width: 26px;
     left: 4px;
     bottom: 4px;
-    background-color: white;
+    background-color: black;
     -webkit-transition: .4s;
     transition: .4s;
 }
 
 input:checked+.slider {
-    background-color: #f32121;
+    background-color: #de5c5c;
     content: "Rec";
-}
-
-input:focus+.slider {
-    box-shadow: 0 0 1px #2196F3;
+    color: aliceblue;
 }
 
 input:checked+.slider:before {

@@ -20,7 +20,7 @@ let bitWet = 0;
 const delayTimes = ["64n", "32n", "16n", "8n", "4n", "2n", "1n"];
 let angleRotate = 0;
 let recorder, recDest;
-let state = 1;
+let state = 0;
 const $audio = document.querySelector('#myAudio');
 audioRecorder();
 
@@ -95,9 +95,17 @@ function draw() {
         textSize(20);
         textLeading(5);
         textFont("serif");
-        for (i = 0; i < instructions.length; i++) {
+        textAlign(LEFT);
+        for (i = 0; i < mainInstructions.length; i++) {
             fill(f);
-            text(instructions[i], 10, 20 * [i] + 20);
+            text(mainInstructions[i], 10, 20 * [i] + 20);
+            f += 10;
+        }
+        textAlign(RIGHT);
+        f = 80;
+        for (i = state * 4; i < (state * 4) + 4; i++) {
+            fill(f);
+            text(secondaryInstructions[i], width - 10, 20 * [i] + 20);
             f += 10;
         }
 
@@ -134,14 +142,15 @@ function draw() {
 
         // Affect player's tune and rate with mouseX and mouseY
         if (player.state === "started") {
-            if (state === 1) {
+            if (state === 0) {
                 if (mouseX < width && mouseX > 0) {
                     player.detune = (mouseX / (width / 4)) * 1200 - 2400;
                 }
                 if (mouseY < height && mouseY > 0) {
                     player.playbackRate = mouseY / (height / 2) + 0.05;
                 }
-            } else if (state === 2) {
+
+            } else if (state === 1) {
                 if (mouseX < width && mouseX > 0) {
                     filter.frequency.value = (mouseX / width) * 4000;
                 }
@@ -149,7 +158,7 @@ function draw() {
                     filter.Q.value = 20 - ((mouseY / height) * 20);
 
                 }
-            } else if (state === 3) {
+            } else if (state === 2) {
                 if (mouseX < width && mouseX > 0) {
                     let delayTime = (mouseX / width) * 4;
                     delay.delayTime.rampTo(delayTime, 0.5);
@@ -157,7 +166,7 @@ function draw() {
                 if (mouseY < height && mouseY > 0) {
                     delay.feedback.value = 1 - mouseY / height;
                 }
-            } else if (state === 4) {
+            } else if (state === 3) {
                 if (mouseX < width && mouseX > 0) {
 
                 }
@@ -257,24 +266,21 @@ function keyPressed() {
         console.log('stop recording');
     }
     if (key === "1") {
-        state = 1;
+        state = 0;
     }
     if (key === "2") {
-        state = 2;
+        state = 1;
     }
     if (key === "3") {
-        state = 3;
+        state = 2;
     }
     if (key === "4") {
-        state = 4;
-    }
-    if (key === "5") {
-        state = 5;
+        state = 3;
     }
 }
 
 function trackPad(event) {
-    if (state === 1) {
+    if (state === 0) {
         if (event.wheelDeltaY > 10) {
             if (grainSize > 0.02) {
                 grainSize -= 0.01;
@@ -294,7 +300,7 @@ function trackPad(event) {
         }
         player.grainSize = grainSize;
         player.overlap = overlap;
-    } else if (state === 2) {
+    } else if (state === 1) {
         if (event.wheelDeltaY > 10) {
             if (bits < 15.8) {
                 bits += 0.1;
@@ -314,7 +320,7 @@ function trackPad(event) {
         }
         crusher.bits.value = bits;
         cheby.order = round(chebyOrder);
-    } else if (state === 3) {
+    } else if (state === 2) {
         if (event.wheelDeltaY > 10) {
             if (delayAmount > 0.01) {
                 delayAmount -= 0.01;
