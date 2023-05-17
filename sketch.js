@@ -21,11 +21,15 @@ const delayTimes = ["64n", "32n", "16n", "8n", "4n", "2n", "1n"];
 let angleRotate = 0;
 let recorder, recDest;
 let state = 0;
+let divis;
 const $audio = document.querySelector('#myAudio');
 audioRecorder();
 
 // Instantiate Tone.GrainPlayer object
 const player = new Tone.GrainPlayer(buffers[bufferIndex]);
+const fft = new Tone.FFT({
+    size: 64
+})
 
 const delay = new Tone.PingPongDelay({
     delayTime: "16n",
@@ -48,7 +52,6 @@ const crusher = new Tone.BitCrusher({
     bits: 16,
     wet: 1
 });
-
 
 const reverb = new Tone.Reverb({
     decay: 6,
@@ -74,20 +77,20 @@ function setup() {
     player.overlap = overlap;
     player.grainSize = grainSize;
     reverb.toDestination();
+    reverb.connect(fft);
     player.chain(crusher, cheby, delay, filter, reverb);
     player.loopStart = 0;
     player.loopEnd = buffers[bufferIndex].duration;
     pressedPoint = 0;
     releasePoint = 1;
+    divis = width / 40;
 }
 
 function draw() {
-
     if (player.loaded) {
-
         // Draw background
         if (mouseX < width && mouseX > 0 && mouseY < height && mouseY > 0) {
-            background(mouseX / 2, mouseY / 2, bgColors[bgIndex], 5);
+            background(40, mouseY / 2, bgColors[bgIndex], 5);
         }
         // Draw instructions
         noStroke();
@@ -152,7 +155,20 @@ function draw() {
 
             } else if (state === 1) {
                 if (mouseX < width && mouseX > 0) {
-                    filter.frequency.value = (mouseX / width) * 4000;
+                    if (mouseX < width / 2) {
+                        if (filter.type === "highpass") {
+                            filter.type = "lowpass"
+                        }
+                        filter.frequency.value = (mouseX / width) * 8000;
+                    } else {
+                        if (filter.type === "lowpass") {
+                            filter.type = "highpass"
+                        }
+                        filter.frequency.value = -4000 + ((mouseX / width) * 8000);
+                    }
+                    // console.log(8000 - ((mouseX / width) * 8000));
+                    console.log(filter.type, filter.frequency.value);
+
                 }
                 if (mouseY < height && mouseY > 0) {
                     filter.Q.value = 20 - ((mouseY / height) * 20);
@@ -173,6 +189,15 @@ function draw() {
                 if (mouseY < height && mouseY > 0) {
 
                 }
+            }
+
+            let values = fft.getValue();
+            for (i = 1; i < values.length; i++) {
+                let mapVals = map(values[i], -100, 0, height, -400);
+                stroke(mapVals, mapVals / 2, 100);
+                strokeWeight(10);
+                // let thisBin = point(i * divis, mapVals);
+                rect(i * divis, mapVals, 5, 5);
             }
         }
     }
