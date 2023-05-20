@@ -12,7 +12,7 @@ let loopStart, loopEnd, pressedPoint, releasePoint;
 let isPlaying = false;
 let grainSize = 0.1;
 let overlap = 0.1;
-let bits = 16;
+let bits = 12;
 let delayAmount = 0;
 let reverbAmount = 0;
 let chebyOrder = 1;
@@ -24,11 +24,12 @@ let state = 0;
 let divis;
 const $audio = document.querySelector('#myAudio');
 audioRecorder();
+r = 0;
 
 // Instantiate Tone.GrainPlayer object
 const player = new Tone.GrainPlayer(buffers[bufferIndex]);
 const fft = new Tone.FFT({
-    size: 64
+    size: 16
 })
 
 const delay = new Tone.PingPongDelay({
@@ -49,8 +50,8 @@ const filter = new Tone.Filter({
 })
 
 const crusher = new Tone.BitCrusher({
-    bits: 16,
-    wet: 1
+    bits: 12,
+    wet: 0
 });
 
 const reverb = new Tone.Reverb({
@@ -90,7 +91,7 @@ function draw() {
     if (player.loaded) {
         // Draw background
         if (mouseX < width && mouseX > 0 && mouseY < height && mouseY > 0) {
-            background(40, mouseY / 2, bgColors[bgIndex], 5);
+            background(40, mouseY / 2, bgColors[bgIndex], 15);
         }
         // Draw instructions
         noStroke();
@@ -122,16 +123,25 @@ function draw() {
         let overlapDisplay = map(overlap, 0.01, 2, (width / 80), (height / 1.5));
         rectMode(CENTER);
         fill(155, 0, 0, 5);
-        rect(width / 2, height / 2, overlapDisplay, grainSizeDisplay);
+        // rect(width / 2, height / 2, overlapDisplay, grainSizeDisplay);
 
         // Draw rect to represent bit and cheby size
-        let crusherDisplay = map(bits, 16, 4, (width / 80), (height / 1.5));
-        let chebyDisplay = map(chebyOrder, 1, 20, (width / 80), (height / 1.5));
-        rectMode(CENTER);
-        fill(0, 155, 0, 5);
-        rect(width / 2, height / 2, chebyDisplay, crusherDisplay);
+        let crushBlocks = floor(bits);
+        let crushBlockWidth = width / crushBlocks;
+        let crushBlockHeight = height / crushBlocks;
+        rectMode(CORNER);
+        noFill();
+        // fill((bitWet * 100), mouseY / 2, bgColors[bgIndex], (bitWet * 200));
+        stroke((bitWet * 100), mouseY / 2, bgColors[bgIndex], (bitWet * 200));
+        strokeWeight(4);
+        for (let i = 0; i < crushBlocks; i++) {
+            for (let j = 0; j < crushBlocks; j++) {
+                rect(j * crushBlockWidth, i * crushBlockHeight, crushBlockWidth - 10, crushBlockHeight - 10);
+            }
+        }
 
         // Draw rect to represent delay amt
+        noStroke();
         let delayDisplay = map(delayAmount, 0, 1, 0, height * 2);
         rectMode(CENTER);
         fill(0, 0, 155, 3);
@@ -166,8 +176,6 @@ function draw() {
                         }
                         filter.frequency.value = -4000 + ((mouseX / width) * 8000);
                     }
-                    // console.log(8000 - ((mouseX / width) * 8000));
-                    console.log(filter.type, filter.frequency.value);
 
                 }
                 if (mouseY < height && mouseY > 0) {
@@ -193,12 +201,15 @@ function draw() {
 
             let values = fft.getValue();
             for (i = 1; i < values.length; i++) {
-                let mapVals = map(values[i], -100, 0, height, -400);
-                stroke(mapVals, mapVals / 2, 100);
-                strokeWeight(10);
-                // let thisBin = point(i * divis, mapVals);
-                rect(i * divis, mapVals, 5, 5);
+                let mapVals = map(values[i], -100, 0, 0, 200);
+                noStroke();
+                // stroke(40, 100, bgColors[bgIndex]);
+                // noFill();
+                fill(40, 100, bgColors[bgIndex], 5)
+                    // strokeWeight(4);
+                rect(width / 2, height / 2, (overlapDisplay + mapVals) + (i * 10), (grainSizeDisplay + mapVals) + (i * 10))
             }
+
         }
     }
 
@@ -327,7 +338,7 @@ function trackPad(event) {
         player.overlap = overlap;
     } else if (state === 1) {
         if (event.wheelDeltaY > 10) {
-            if (bits < 15.8) {
+            if (bits < 11.8) {
                 bits += 0.1;
             }
         } else if (event.wheelDeltaY < -10) {
@@ -335,16 +346,16 @@ function trackPad(event) {
                 bits -= 0.1;
             }
         } else if (event.wheelDeltaX < -10) {
-            if (chebyOrder > 1) {
-                chebyOrder -= 0.1;
+            if (bitWet > 0.01) {
+                bitWet -= 0.01;
             }
         } else if (event.wheelDeltaX > 10) {
-            if (chebyOrder < 20) {
-                chebyOrder += 0.1;
+            if (bitWet < 0.98) {
+                bitWet += 0.01;
             }
         }
         crusher.bits.value = bits;
-        cheby.order = round(chebyOrder);
+        crusher.wet.value = bitWet;
     } else if (state === 2) {
         if (event.wheelDeltaY > 10) {
             if (delayAmount > 0.01) {
