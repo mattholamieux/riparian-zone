@@ -96,7 +96,7 @@ function draw() {
         // background("#acde91");
         background(172, 222, 145, 20);
         textAlign(CENTER);
-        textSize(364);
+        textSize(300);
         fill(112, 177, 118, 20)
         noStroke();
         let title = "Riparian Zone";
