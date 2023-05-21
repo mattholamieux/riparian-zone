@@ -25,6 +25,8 @@ let divis;
 const $audio = document.querySelector('#myAudio');
 audioRecorder();
 r = 0;
+let initRect = false;
+let firstLoop = true;
 
 // Instantiate Tone.GrainPlayer object
 const player = new Tone.GrainPlayer(buffers[bufferIndex]);
@@ -71,6 +73,7 @@ function setup() {
     cnv.mouseReleased(getReleasePoint);
     cnv.mouseWheel(trackPad);
     cnv.parent('canvas-holder');
+    background(172, 222, 145, 20);
 
     // Init settings for player
     player.loop = true;
@@ -89,19 +92,19 @@ function setup() {
 
 function draw() {
     if (player.loaded) {
-        // stroke('#000')
-        // line(0, height / 2, width, height / 2)
-        // Draw background
-        // if (mouseX < width && mouseX > 0 && mouseY < height && mouseY > 0) {
-        // background("#acde91");
+        if (firstLoop) {
+            afterSetup();
+            firstLoop = false;
+        }
+
         background(172, 222, 145, 20);
+
         textAlign(CENTER);
-        textSize(300);
-        fill(112, 177, 118, 20)
+        textSize(width / 6);
+        fill(112, 177, 118)
         noStroke();
         let title = "Riparian Zone";
         text(title, width / 2, height / 2 + 75);
-        // }
         // Draw instructions
         noStroke();
         let f = 80;
@@ -128,15 +131,15 @@ function draw() {
         rect(x1, 0, x2 - x1, height);
 
         // Draw rect to represent grain size
-        console.log(overlap);
         let grainSizeDisplay = map(grainSize, 0.01, 2, (width / 80), (height / 1.5));
         let overlapDisplay = map(overlap, 0.01, 2, (width / 80), (height / 1.5));
         rectMode(CENTER);
-        // fill(155, 0, 0, 5);
         stroke("#70b176")
-            // fill("#70b176")
         noFill();
-        rect(width / 2, height / 2, overlapDisplay, grainSizeDisplay);
+        if (initRect) {
+            rect(width / 2, height / 2, overlapDisplay, grainSizeDisplay);
+        }
+
 
         // Draw rect to represent bit and cheby size
         let crushBlocks = floor(bits);
@@ -196,7 +199,7 @@ function draw() {
                 }
             } else if (state === 2) {
                 if (mouseX < width && mouseX > 0) {
-                    let delayTime = (mouseX / width) * 4;
+                    let delayTime = (mouseX / width) * 2;
                     delay.delayTime.rampTo(delayTime, 0.5);
                 }
                 if (mouseY < height && mouseY > 0) {
@@ -210,26 +213,8 @@ function draw() {
 
                 }
             }
-
-            let values = fft.getValue();
-            for (i = 1; i < values.length; i++) {
-                let mapVals = map(values[i], -100, 0, 0, 200);
-                // noStroke();
-                // stroke('217,232,206, 10');
-                // strokeWeight(1);
-                // noFill();
-                // fill("#70b176")
-                // strokeWeight(4);
-                // rect(width / 2, height / 2, (overlapDisplay + mapVals) + (i * 10), (grainSizeDisplay + mapVals) + (i * 10))
-            }
-
         }
     }
-
-    // else {
-    //  Loading Animation Here
-
-    // })
 }
 
 function getPressedPoint() {
@@ -267,7 +252,6 @@ function calculateLoop() {
         player.reverse = true;
         player.sync().start("+0.5", loopEnd);
     }
-    // isPlaying = true;
 }
 
 function keyPressed() {
@@ -346,6 +330,9 @@ function trackPad(event) {
             if (overlap < 2) {
                 overlap += 0.01;
             }
+        }
+        if (!initRect) {
+            initRect = true;
         }
         player.grainSize = grainSize;
         player.overlap = overlap;
@@ -426,3 +413,15 @@ cb.addEventListener('click', (e) => {
         console.log('stop recording');
     }
 })
+
+document.addEventListener("DOMContentLoaded", function(event) {
+    const sidebar = document.querySelector('.sidebar');
+    document.querySelector('button').onclick = function() {
+        sidebar.classList.toggle('sidebar_small');
+    }
+});
+
+function afterSetup() {
+    const mySVG = document.getElementById('titleSVG');
+    mySVG.style.display = 'block';
+}

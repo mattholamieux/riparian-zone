@@ -1,7 +1,8 @@
 const mainInstructions = [
     // "JS_MANGL",
     "space to start/stop",
-    "click/drag to set loop points",
+    "click + drag ↔ to set loop points",
+    "(dragging right to left plays in reverse)",
     "left & right arrows change track",
     "1, 2, 3, 4 for more options"
 ];
