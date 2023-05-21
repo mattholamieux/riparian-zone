@@ -92,16 +92,16 @@ function draw() {
         // stroke('#000')
         // line(0, height / 2, width, height / 2)
         // Draw background
-        if (mouseX < width && mouseX > 0 && mouseY < height && mouseY > 0) {
-            // background("#acde91");
-            background(172, 222, 145, 20);
-            textAlign(CENTER);
-            textSize(364);
-            fill(112, 177, 118, 20)
-            noStroke();
-            let title = "Riparian Zone";
-            text(title, width / 2, height / 2 + 75);
-        }
+        // if (mouseX < width && mouseX > 0 && mouseY < height && mouseY > 0) {
+        // background("#acde91");
+        background(172, 222, 145, 20);
+        textAlign(CENTER);
+        textSize(364);
+        fill(112, 177, 118, 20)
+        noStroke();
+        let title = "Riparian Zone";
+        text(title, width / 2, height / 2 + 75);
+        // }
         // Draw instructions
         noStroke();
         let f = 80;
