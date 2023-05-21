@@ -12,7 +12,7 @@ let loopStart, loopEnd, pressedPoint, releasePoint;
 let isPlaying = false;
 let grainSize = 0.1;
 let overlap = 0.1;
-let bits = 12;
+let bits = 8;
 let delayAmount = 0;
 let reverbAmount = 0;
 let chebyOrder = 1;
@@ -50,7 +50,7 @@ const filter = new Tone.Filter({
 })
 
 const crusher = new Tone.BitCrusher({
-    bits: 12,
+    bits: 8,
     wet: 0
 });
 
@@ -89,10 +89,19 @@ function setup() {
 
 function draw() {
     if (player.loaded) {
+        // stroke('#000')
+        // line(0, height / 2, width, height / 2)
         // Draw background
-        if (mouseX < width && mouseX > 0 && mouseY < height && mouseY > 0) {
-            background(40, mouseY / 2, bgColors[bgIndex], 15);
-        }
+        // if (mouseX < width && mouseX > 0 && mouseY < height && mouseY > 0) {
+        // background("#acde91");
+        background(172, 222, 145, 20);
+        textAlign(CENTER);
+        textSize(364);
+        fill(112, 177, 118, 20)
+        noStroke();
+        let title = "Riparian Zone";
+        text(title, width / 2, height / 2 + 75);
+        // }
         // Draw instructions
         noStroke();
         let f = 80;
@@ -115,28 +124,31 @@ function draw() {
 
         // Draw rect to indicate loop start and end
         rectMode(CORNER);
-        fill(40, 54, 100, 30, 50);
+        fill(73, 87, 76, 20);
         rect(x1, 0, x2 - x1, height);
 
         // Draw rect to represent grain size
+        console.log(overlap);
         let grainSizeDisplay = map(grainSize, 0.01, 2, (width / 80), (height / 1.5));
         let overlapDisplay = map(overlap, 0.01, 2, (width / 80), (height / 1.5));
         rectMode(CENTER);
-        fill(155, 0, 0, 5);
-        // rect(width / 2, height / 2, overlapDisplay, grainSizeDisplay);
+        // fill(155, 0, 0, 5);
+        stroke("#70b176")
+            // fill("#70b176")
+        noFill();
+        rect(width / 2, height / 2, overlapDisplay, grainSizeDisplay);
 
         // Draw rect to represent bit and cheby size
         let crushBlocks = floor(bits);
         let crushBlockWidth = width / crushBlocks;
         let crushBlockHeight = height / crushBlocks;
-        rectMode(CORNER);
         noFill();
         // fill((bitWet * 100), mouseY / 2, bgColors[bgIndex], (bitWet * 200));
-        stroke((bitWet * 100), mouseY / 2, bgColors[bgIndex], (bitWet * 200));
+        stroke(32, 32, 32, (bitWet * 150));
         strokeWeight(4);
-        for (let i = 0; i < crushBlocks; i++) {
-            for (let j = 0; j < crushBlocks; j++) {
-                rect(j * crushBlockWidth, i * crushBlockHeight, crushBlockWidth - 10, crushBlockHeight - 10);
+        for (let i = 1; i < crushBlocks; i++) {
+            for (let j = 1; j < crushBlocks; j++) {
+                rect(j * crushBlockWidth, i * crushBlockHeight, 10, 10);
             }
         }
 
@@ -144,13 +156,13 @@ function draw() {
         noStroke();
         let delayDisplay = map(delayAmount, 0, 1, 0, height * 2);
         rectMode(CENTER);
-        fill(0, 0, 155, 3);
+        fill(73, 87, 76, 20);
         rect(width / 2, height, width, delayDisplay);
 
         // Draw rect to represent delay amt
         let reverbDisplay = map(reverbAmount, 0, 1, 0, width * 2);
         rectMode(CENTER);
-        fill(50, 0, 50, 3);
+        fill(180, 220, 188, 60);
         rect(0, height / 2, reverbDisplay, height);
 
         // Affect player's tune and rate with mouseX and mouseY
@@ -202,12 +214,13 @@ function draw() {
             let values = fft.getValue();
             for (i = 1; i < values.length; i++) {
                 let mapVals = map(values[i], -100, 0, 0, 200);
-                noStroke();
-                // stroke(40, 100, bgColors[bgIndex]);
+                // noStroke();
+                // stroke('217,232,206, 10');
+                // strokeWeight(1);
                 // noFill();
-                fill(40, 100, bgColors[bgIndex], 5)
-                    // strokeWeight(4);
-                rect(width / 2, height / 2, (overlapDisplay + mapVals) + (i * 10), (grainSizeDisplay + mapVals) + (i * 10))
+                // fill("#70b176")
+                // strokeWeight(4);
+                // rect(width / 2, height / 2, (overlapDisplay + mapVals) + (i * 10), (grainSizeDisplay + mapVals) + (i * 10))
             }
 
         }
@@ -338,20 +351,20 @@ function trackPad(event) {
         player.overlap = overlap;
     } else if (state === 1) {
         if (event.wheelDeltaY > 10) {
-            if (bits < 11.8) {
-                bits += 0.1;
-            }
-        } else if (event.wheelDeltaY < -10) {
-            if (bits > 4.1) {
-                bits -= 0.1;
-            }
-        } else if (event.wheelDeltaX < -10) {
             if (bitWet > 0.01) {
                 bitWet -= 0.01;
             }
-        } else if (event.wheelDeltaX > 10) {
+        } else if (event.wheelDeltaY < -10) {
             if (bitWet < 0.98) {
                 bitWet += 0.01;
+            }
+        } else if (event.wheelDeltaX < -10) {
+            if (bits < 7.8) {
+                bits += 0.1;
+            }
+        } else if (event.wheelDeltaX > 10) {
+            if (bits > 4.1) {
+                bits -= 0.1;
             }
         }
         crusher.bits.value = bits;

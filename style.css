@@ -27,13 +27,14 @@ input[type="file"] {
 }
 
 .custom-file-upload {
-    padding: 10px;
+    display: none;
+    /* padding: 10px;
     margin: 5px 10px;
     position: absolute;
     bottom: 0;
     right: 0;
     background-color: aliceblue;
-    cursor: pointer;
+    cursor: pointer; */
 }
 
 
@@ -72,14 +73,14 @@ input[type="file"] {
     left: 0;
     right: 0;
     bottom: 0;
-    background-color: aliceblue;
+    background-color: #70b176;
     -webkit-transition: .4s;
     transition: .4s;
 }
 
 .slider:before {
     position: absolute;
-    content: "Rec";
+    content: "";
     font-size: 12px;
     /* font-weight: bold; */
     text-align: center;
@@ -88,14 +89,14 @@ input[type="file"] {
     width: 26px;
     left: 4px;
     bottom: 4px;
-    background-color: black;
+    background-color: #acde91;
     -webkit-transition: .4s;
     transition: .4s;
 }
 
 input:checked+.slider {
-    background-color: #de5c5c;
-    content: "Rec";
+    background-color: #272727;
+    /* content: "Rec"; */
     color: aliceblue;
 }
 
@@ -104,3 +105,10 @@ input:checked+.slider:before {
     -ms-transform: translateX(26px);
     transform: translateX(26px);
 }
+
+
+/* #titleSVG {
+    position: fixed;
+    width: 130%;
+    top: 29%;
+} */
