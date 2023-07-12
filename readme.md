@@ -1,10 +1,12 @@
-### p5_Grain
+### Follow me to the Riparian Zone
 
-A web-based granular sample player built with p5.js and Tone.js. 
+This project was built using tone.js & p5.js. It allows users to loop, mangle, & deconstruct tracks from my album Riparian Zone, to create new ambient soundscapes.
 
-- press space to play/pause
-- click/drag to set loop points
-- mouse x controls pitch
-- mouse y controls rate
-- scroll up and down to change grain size
-- left & right arrows to change sample
+It is meant to be explored using a laptop trackpad; it is not mobile-friendly
+
+There are 3 pages of controls, which can be accessed with the number keys 1-3
+
+The 4th page allows you to use the trackpad without affecting any parameters
+For best results, use Chrome
+
+<p><em>"music should be like a tree... standing there without wanting to tell you something"</em><br>-bernhard gunter</p>
