@@ -68,10 +68,10 @@ function preload() {
     rzSvg = loadImage("images/TO_014_typetoken_type-01.png");
 }
 
-setTimeout(function() {
-    loadingAnimation = false;
-    showButt();
-}, 6500);
+// setTimeout(function() {
+//     loadingAnimation = false;
+//     showButt();
+// }, 6500);
 
 function setup() {
     // Create canvas and attch mouse events with callbacks
@@ -230,9 +230,13 @@ function draw() {
             translate(width / 2, height / 2);
             point((thisPoint.x - originPoint.x + 20) * scaler, (thisPoint.y - originPoint.y + 10) * scaler);
             pop();
-            pathCounter += 3;
+            pathCounter += 2;
         } else {
-            background("#bccf7509")
+            background("#bccf7509");
+            setTimeout(function() {
+                loadingAnimation = false;
+                showButt();
+            }, 2000);
         }
     }
 }
