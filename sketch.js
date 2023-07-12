@@ -19,14 +19,16 @@ let chebyOrder = 1;
 let bitWet = 0;
 const delayTimes = ["64n", "32n", "16n", "8n", "4n", "2n", "1n"];
 let angleRotate = 0;
-let recorder, recDest;
 let state = 0;
 let divis;
-const $audio = document.querySelector('#myAudio');
-audioRecorder();
 r = 0;
 let initRect = false;
 let firstLoop = true;
+let rzSvg;
+let path;
+let pathLength;
+let pathCounter = 0;
+let loadingAnimation = true;
 
 // Instantiate Tone.GrainPlayer object
 const player = new Tone.GrainPlayer(buffers[bufferIndex]);
@@ -62,8 +64,14 @@ const reverb = new Tone.Reverb({
     wet: 0
 });
 
-reverb.connect(recDest);
+function preload() {
+    rzSvg = loadImage("svgs/TO_014_typetoken_type-01.png");
+}
 
+setTimeout(function() {
+    loadingAnimation = false;
+    showButt();
+}, 6500);
 
 function setup() {
     // Create canvas and attch mouse events with callbacks
@@ -88,131 +96,143 @@ function setup() {
     pressedPoint = 0;
     releasePoint = 1;
     divis = width / 40;
+    afterSetup();
+    // background("#bccf75")
 }
 
 function draw() {
-    if (player.loaded) {
-        if (firstLoop) {
-            afterSetup();
-            firstLoop = false;
-        }
+    if (firstLoop) {
+        // afterSetup();
+        firstLoop = false;
+    }
+    if (!loadingAnimation) {
+        if (player.loaded) {
 
-        background(172, 222, 145, 20);
+            background("#bccf7530")
+            imageMode(CENTER);
+            image(rzSvg, width / 2, height / 2);
 
-        textAlign(CENTER);
-        textSize(width / 6);
-        fill(112, 177, 118)
-        noStroke();
-        let title = "Riparian Zone";
-        text(title, width / 2, height / 2 + 75);
-        // Draw instructions
-        noStroke();
-        let f = 80;
-        textSize(20);
-        textLeading(5);
-        textFont("serif");
-        textAlign(LEFT);
-        for (i = 0; i < mainInstructions.length; i++) {
-            fill(f);
-            text(mainInstructions[i], 10, 20 * [i] + 20);
-            f += 10;
-        }
-        textAlign(RIGHT);
-        f = 80;
-        for (i = state * 4; i < (state * 4) + 4; i++) {
-            fill(f);
-            text(secondaryInstructions[i], width - 10, 20 * [i] + 20);
-            f += 10;
-        }
-
-        // Draw rect to indicate loop start and end
-        rectMode(CORNER);
-        fill(73, 87, 76, 20);
-        rect(x1, 0, x2 - x1, height);
-
-        // Draw rect to represent grain size
-        let grainSizeDisplay = map(grainSize, 0.01, 2, (width / 80), (height / 1.5));
-        let overlapDisplay = map(overlap, 0.01, 2, (width / 80), (height / 1.5));
-        rectMode(CENTER);
-        stroke("#70b176")
-        noFill();
-        if (initRect) {
-            rect(width / 2, height / 2, overlapDisplay, grainSizeDisplay);
-        }
-
-
-        // Draw rect to represent bit and cheby size
-        let crushBlocks = floor(bits);
-        let crushBlockWidth = width / crushBlocks;
-        let crushBlockHeight = height / crushBlocks;
-        noFill();
-        // fill((bitWet * 100), mouseY / 2, bgColors[bgIndex], (bitWet * 200));
-        stroke(32, 32, 32, (bitWet * 150));
-        strokeWeight(4);
-        for (let i = 1; i < crushBlocks; i++) {
-            for (let j = 1; j < crushBlocks; j++) {
-                rect(j * crushBlockWidth, i * crushBlockHeight, 10, 10);
+            noStroke();
+            fill("#305431")
+            textSize(20);
+            textLeading(5);
+            textFont("serif");
+            textAlign(LEFT);
+            for (i = 0; i < mainInstructions.length; i++) {
+                text(mainInstructions[i], 10, 20 * [i] + 30);
             }
-        }
+            textAlign(RIGHT);
+            for (i = state * 4; i < (state * 4) + 4; i++) {
+                text(secondaryInstructions[i], width - 10, 20 * [i] + 30);
+            }
 
-        // Draw rect to represent delay amt
-        noStroke();
-        let delayDisplay = map(delayAmount, 0, 1, 0, height * 2);
-        rectMode(CENTER);
-        fill(73, 87, 76, 20);
-        rect(width / 2, height, width, delayDisplay);
+            // Draw rect to indicate loop start and end
+            rectMode(CORNER);
+            fill(73, 87, 76, 20);
+            rect(x1, 0, x2 - x1, height);
 
-        // Draw rect to represent delay amt
-        let reverbDisplay = map(reverbAmount, 0, 1, 0, width * 2);
-        rectMode(CENTER);
-        fill(180, 220, 188, 60);
-        rect(0, height / 2, reverbDisplay, height);
+            // Draw rect to represent grain size
+            let grainSizeDisplay = map(grainSize, 0.01, 2, (width / 80), (height / 1.5));
+            let overlapDisplay = map(overlap, 0.01, 2, (width / 80), (height / 1.5));
+            rectMode(CENTER);
+            stroke("#305431")
+            noFill();
+            if (initRect) {
+                rect(width / 2, height / 2, overlapDisplay, grainSizeDisplay);
+            }
 
-        // Affect player's tune and rate with mouseX and mouseY
-        if (player.state === "started") {
-            if (state === 0) {
-                if (mouseX < width && mouseX > 0) {
-                    player.detune = (mouseX / (width / 4)) * 1200 - 2400;
+
+            // Draw rect to represent bit and cheby size
+            let crushBlocks = floor(bits);
+            let crushBlockWidth = width / crushBlocks;
+            let crushBlockHeight = height / crushBlocks;
+            noFill();
+            // fill((bitWet * 100), mouseY / 2, bgColors[bgIndex], (bitWet * 200));
+            stroke(48, 84, 49, (bitWet * 150));
+            strokeWeight(4);
+            for (let i = 1; i < crushBlocks; i++) {
+                for (let j = 1; j < crushBlocks; j++) {
+                    rect(j * crushBlockWidth, i * crushBlockHeight, 100, 100);
                 }
-                if (mouseY < height && mouseY > 0) {
-                    player.playbackRate = mouseY / (height / 2) + 0.05;
-                }
+            }
 
-            } else if (state === 1) {
-                if (mouseX < width && mouseX > 0) {
-                    if (mouseX < width / 2) {
-                        if (filter.type === "highpass") {
-                            filter.type = "lowpass"
-                        }
-                        filter.frequency.value = (mouseX / width) * 8000;
-                    } else {
-                        if (filter.type === "lowpass") {
-                            filter.type = "highpass"
-                        }
-                        filter.frequency.value = -4000 + ((mouseX / width) * 8000);
+            // Draw rect to represent delay amt
+            noStroke();
+            let delayDisplay = map(delayAmount, 0, 1, 0, height * 2);
+            rectMode(CENTER);
+            fill(73, 87, 76, 10);
+            rect(width / 2, height, width, delayDisplay);
+
+            // Draw rect to represent reverb amt
+            let reverbDisplay = map(reverbAmount, 0, 1, 0, width * 2);
+            rectMode(CENTER);
+            // fill(180, 220, 188, 60);
+            fill("#3054313a")
+            rect(0, height / 2, reverbDisplay, height);
+
+            // Affect player's tune and rate with mouseX and mouseY
+            if (player.state === "started") {
+                if (state === 0) {
+                    if (mouseX < width && mouseX > 0) {
+                        player.detune = (mouseX / (width / 4)) * 1200 - 2400;
+                    }
+                    if (mouseY < height && mouseY > 0) {
+                        player.playbackRate = mouseY / (height / 2) + 0.05;
                     }
 
-                }
-                if (mouseY < height && mouseY > 0) {
-                    filter.Q.value = 20 - ((mouseY / height) * 20);
+                } else if (state === 1) {
+                    if (mouseX < width && mouseX > 0) {
+                        if (mouseX < width / 2) {
+                            if (filter.type === "highpass") {
+                                filter.type = "lowpass"
+                            }
+                            filter.frequency.value = (mouseX / width) * 8000;
+                        } else {
+                            if (filter.type === "lowpass") {
+                                filter.type = "highpass"
+                            }
+                            filter.frequency.value = -4000 + ((mouseX / width) * 8000);
+                        }
 
-                }
-            } else if (state === 2) {
-                if (mouseX < width && mouseX > 0) {
-                    let delayTime = (mouseX / width) * 2;
-                    delay.delayTime.rampTo(delayTime, 0.5);
-                }
-                if (mouseY < height && mouseY > 0) {
-                    delay.feedback.value = 1 - mouseY / height;
-                }
-            } else if (state === 3) {
-                if (mouseX < width && mouseX > 0) {
+                    }
+                    if (mouseY < height && mouseY > 0) {
+                        filter.Q.value = 20 - ((mouseY / height) * 20);
 
-                }
-                if (mouseY < height && mouseY > 0) {
+                    }
+                } else if (state === 2) {
+                    if (mouseX < width && mouseX > 0) {
+                        let delayTime = (mouseX / width) * 2;
+                        delay.delayTime.rampTo(delayTime, 0.5);
+                    }
+                    if (mouseY < height && mouseY > 0) {
+                        delay.feedback.value = 1 - mouseY / height;
+                    }
+                } else if (state === 3) {
+                    if (mouseX < width && mouseX > 0) {
 
+                    }
+                    if (mouseY < height && mouseY > 0) {
+
+                    }
                 }
             }
+        }
+    } else {
+        let scaler = 4;
+        stroke("#305431")
+        strokeWeight(8);
+        let originPoint = path.getPointAtLength(0)
+        push();
+        let thisPoint = path.getPointAtLength(pathCounter)
+
+        if (pathCounter < pathLength) {
+            push();
+            translate(width / 2, height / 2);
+            point((thisPoint.x - originPoint.x - 10) * scaler, (thisPoint.y - originPoint.y - 20) * scaler);
+            pop();
+            pathCounter += 1;
+        } else {
+            background("#bccf7509")
         }
     }
 }
@@ -288,16 +308,6 @@ function keyPressed() {
         }
     }
 
-    if (key === "r") {
-        recorder.start();
-        console.log('start recording')
-    }
-    if (key === "s") {
-        recorder.stop();
-        player.stop();
-        isPlaying = false;
-        console.log('stop recording');
-    }
     if (key === "1") {
         state = 0;
     }
@@ -377,7 +387,6 @@ function trackPad(event) {
         delay.wet.value = delayAmount;
         reverb.wet.value = reverbAmount;
     }
-
 }
 
 async function initializeTone() {
@@ -390,38 +399,22 @@ function windowResized() {
     resizeCanvas(windowWidth, windowHeight);
 }
 
-let audio_file = document.getElementById('audio_file');
-audio_file.onchange = function() {
-    var file = URL.createObjectURL(this.files[0]);
-    let buffer = new Tone.ToneAudioBuffer(file);
-    buffers.unshift(buffer);
-    player.buffer = buffers[0];
-    bufferIndex = 0;
-    calculateLoop();
-};
-
-const cb = document.getElementById('recBox');
-cb.addEventListener('click', (e) => {
-    if (cb.checked) {
-        recorder.start();
-        $($audio).hide();
-        console.log('start recording')
-    } else {
-        recorder.stop();
-        player.stop();
-        isPlaying = false;
-        console.log('stop recording');
-    }
-})
-
 document.addEventListener("DOMContentLoaded", function(event) {
     const sidebar = document.querySelector('.sidebar');
     document.querySelector('button').onclick = function() {
         sidebar.classList.toggle('sidebar_small');
     }
+
+    path = document.getElementById('path1')
+    pathLength = Math.floor(path.getTotalLength());
 });
 
 function afterSetup() {
     const mySVG = document.getElementById('titleSVG');
     mySVG.style.display = 'block';
+}
+
+function showButt() {
+    const butt = document.getElementById('helpButt');
+    butt.style.display = 'block';
 }
