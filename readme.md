@@ -1,4 +1,4 @@
-### Follow me to the Riparian Zone
+![TO_014_typetoken_type-02](https://github.com/mattholamieux/riparian-zone/assets/50525591/6402d707-c188-4ba0-83a2-c468671604c6)
 
 This project was built using tone.js & p5.js. It allows users to loop, mangle, & deconstruct tracks from my album Riparian Zone, to create new ambient soundscapes.
 
