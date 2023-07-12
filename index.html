@@ -11,32 +11,42 @@
 
 <body>
     <div id="canvas-holder"></div>
-    <label class="switch">
-        <input type="checkbox" id="recBox">
-        <span class="slider"></span>
-    </label>
     <div class="grid-container">
         <div class="sidebar sidebar_small">
-            <p>This project was built by me, matt nelson, using tone.js & p5.js. It allows users to loop, mangle, & deconstruct tracks off of my album Riparian Zone, to create new ambient soundscapes.</p>
+            <p>This project was built using tone.js & p5.js. It allows users to loop, mangle, & deconstruct tracks from my album Riparian Zone, to create new ambient soundscapes.</p>
             <p>It is meant to be explored using a laptop trackpad; it is not mobile-friendly</p>
             <p>There are 3 pages of controls, which can be accessed with the number keys 1-3</p>
             <p>The 4th page allows you to use the trackpad without affecting any parameters</p>
             <p>For best results, use Chrome</p>
-            <button>huh?</button>
+            <p><em>"music should be like a tree... standing there without wanting to tell you something"</em><br>-bernhard gunter</p>
+            <button id="helpButt"> ? </button>
         </div>
     </div>
-    <img id="titleSVG" src="noise2.png" alt="Title SVG" />
+    <img id="titleSVG" src="images/noise2.png" alt="Title SVG" />
 
-    <label class="custom-file-upload">
-        <input id="audio_file" type="file" accept="audio/*" />
-        upload
-    </label>
 
-    <audio id="myAudio" controls></audio>
-    <script src="recorder.js"></script>
-    <script src="buffers.js"></script>
-    <script src="instructions.js"></script>
-    <script src="sketch.js"></script>
+    <svg version="1.1" id="Layer_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 92.59 83.19" style="enable-background:new 0 0 92.59 83.19;" xml:space="preserve">
+        <g>
+        <path id="path1" class="st1" d="M71.69,51.15c-1.1-3.97-3.01-7.57-5.58-10.62l0.59-0.39l1.6-1.09c0.47-0.42,0.5-1.03,0.47-1.67l-0.01-5.72
+            l0.03,0l-0.05-2.91c0-0.45-0.16-0.88-0.43-1.23c-0.17-0.22-0.38-0.4-0.62-0.54l-1.95-1.14l-14.16-7.93L37.97,10.3
+            c-0.3-0.17-0.65-0.26-1-0.26c-0.38,0-0.75,0.1-1.08,0.3l-7.76,4.7l-0.1,0.07l-0.11,0.08l-0.1,0.09l-0.11,0.1l-0.08,0.1l-0.09,0.1
+            l-0.08,0.13l-0.07,0.1l-0.06,0.14l-0.05,0.1l-0.04,0.14l-0.04,0.11l-0.02,0.13l-0.03,0.13l0,0.12l-0.01,0.07l0,0.09l0.02,1.06
+            l0.11,7.33c0.01,0.74,0.42,1.42,1.07,1.78l4.08,2.44l4.34,2.33c-7.15,2.12-13.12,6.9-16.77,13.45c-0.25,0.45-0.09,1.01,0.36,1.26
+            l5.9,3.3c0.22,0.12,0.47,0.15,0.7,0.08c0.24-0.07,0.44-0.22,0.56-0.44c2.22-3.97,5.62-6.99,9.73-8.69l-0.01,14.07
+            c0.01,0.74,0.75,1.43,1.39,1.79l9.83,5.44l0.02,0.01c0.31,0.16,0.65,0.25,0.99,0.25c0.09,0,0.19,0,0.28-0.02l0.02,0
+            c0.1-0.02,0.18-0.03,0.26-0.05l0.03-0.01c0.09-0.03,0.16-0.05,0.23-0.08l0.08-0.04l0.17-0.09l4.59-2.78l3.18-1.93
+            c0.63-0.38,1.01-1.07,1-1.8l0.01-5.5l0-4.19c1.89,2.16,3.29,4.75,4.09,7.62c1.4,5.06,0.75,10.38-1.82,15.01l-0.01,0.03
+            c-0.25,0.45-0.09,1.01,0.36,1.26l5.9,3.3c0.22,0.12,0.47,0.15,0.71,0.08c0.24-0.07,0.44-0.23,0.56-0.45l0.01-0.02
+            C72.76,66.04,73.69,58.4,71.69,51.15z M49.69,60.64l-0.23,0.06l-0.22-0.06l-1.28-0.71l-1.28-0.71l-7.64-4.02
+            c-0.14-0.08-0.23-0.23-0.24-0.39V40.18v-0.46v-4.94l-0.05-3.49l0-0.16l-3.39-1.88l-1.97-1.15l-4.25-2.49
+            c-0.15-0.08-0.24-0.23-0.24-0.4l-0.03-5.47c0-0.16,0.08-0.32,0.22-0.4l0.23-0.07l0.23,0.06l8.1,4.65l2.7,1.56l8.02,4.43l2.26,1.25
+            l0.75,0.42l1.28,0.71l1.03,0.58l0.24,0.13l2.9,1.55c0.14,0.08,0.24,0.23,0.24,0.4l0,5.48c0,0.17-0.09,0.32-0.23,0.4l-0.23,0.06
+            l-0.22-0.05l-6.5-3.81l0,2.83l0.05,20.32C49.92,60.4,49.83,60.55,49.69,60.64z"/>
+        </g>
+    </svg>
+    <script src="js/buffers.js"></script>
+    <script src="js/instructions.js"></script>
+    <script src="js/sketch.js"></script>
 </body>
 
 </html>
