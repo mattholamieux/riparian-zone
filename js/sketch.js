@@ -230,7 +230,7 @@ function draw() {
             translate(width / 2, height / 2);
             point((thisPoint.x - originPoint.x + 20) * scaler, (thisPoint.y - originPoint.y + 10) * scaler);
             pop();
-            pathCounter += 2;
+            pathCounter += 3;
         } else {
             background("#bccf7509")
         }
