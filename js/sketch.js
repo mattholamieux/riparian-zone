@@ -23,7 +23,6 @@ let state = 0;
 let divis;
 r = 0;
 let initRect = false;
-let firstLoop = true;
 let rzSvg;
 let path;
 let pathLength;
@@ -68,11 +67,6 @@ function preload() {
     rzSvg = loadImage("images/TO_014_typetoken_type-01.png");
 }
 
-// setTimeout(function() {
-//     loadingAnimation = false;
-//     showButt();
-// }, 6500);
-
 function setup() {
     // Create canvas and attch mouse events with callbacks
     cnv = createCanvas(windowWidth, windowHeight);
@@ -81,7 +75,7 @@ function setup() {
     cnv.mouseReleased(getReleasePoint);
     cnv.mouseWheel(trackPad);
     cnv.parent('canvas-holder');
-    background(172, 222, 145, 20);
+    frameRate(20);
 
     // Init settings for player
     player.loop = true;
@@ -97,17 +91,11 @@ function setup() {
     releasePoint = 1;
     divis = width / 40;
     afterSetup();
-    // background("#bccf75")
 }
 
 function draw() {
-    if (firstLoop) {
-        // afterSetup();
-        firstLoop = false;
-    }
     if (!loadingAnimation) {
         if (player.loaded) {
-
             background("#bccf7530")
             imageMode(CENTER);
             image(rzSvg, width / 2, height / 2);
@@ -230,12 +218,13 @@ function draw() {
             translate(width / 2, height / 2);
             point((thisPoint.x - originPoint.x + 20) * scaler, (thisPoint.y - originPoint.y + 10) * scaler);
             pop();
-            pathCounter += 2;
+            pathCounter += 3;
         } else {
             background("#bccf7509");
             setTimeout(function() {
                 loadingAnimation = false;
                 showButt();
+                console.log('load')
             }, 2000);
         }
     }
