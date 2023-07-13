@@ -28,6 +28,7 @@ let path;
 let pathLength;
 let pathCounter = 0;
 let loadingAnimation = true;
+let firstLoop = true;
 
 // Instantiate Tone.GrainPlayer object
 const player = new Tone.GrainPlayer(buffers[bufferIndex]);
@@ -139,7 +140,7 @@ function draw() {
             strokeWeight(4);
             for (let i = 1; i < crushBlocks; i++) {
                 for (let j = 1; j < crushBlocks; j++) {
-                    rect(j * crushBlockWidth, i * crushBlockHeight, 100, 100);
+                    rect(j * crushBlockWidth, i * crushBlockHeight, height / 10, height / 10);
                 }
             }
 
@@ -205,6 +206,10 @@ function draw() {
             }
         }
     } else {
+        if (firstLoop) {
+            cnv.style('height', '100%');
+            firstLoop = false;
+        }
         let scaler = 4;
         stroke("#305431")
         strokeWeight(8);
@@ -219,11 +224,12 @@ function draw() {
             pop();
             pathCounter += 2;
         } else {
-            background("#bccf7509");
+            background("#bccf7510");
             setTimeout(function() {
                 loadingAnimation = false;
                 showButt();
                 frameRate(20);
+
             }, 2000);
         }
     }
