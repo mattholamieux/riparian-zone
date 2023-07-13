@@ -224,6 +224,7 @@ function draw() {
             setTimeout(function() {
                 loadingAnimation = false;
                 showButt();
+                resizeCanvas(windowWidth, windowHeight);
                 frameRate(20);
             }, 2000);
         }
