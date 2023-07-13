@@ -19,7 +19,6 @@ body {
     top: 0;
     mix-blend-mode: soft-light;
     pointer-events: none;
-    display: none;
 }
 
 #canvas-holder {
