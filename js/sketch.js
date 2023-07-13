@@ -90,7 +90,6 @@ function setup() {
     pressedPoint = 0;
     releasePoint = 1;
     divis = width / 40;
-    afterSetup();
 }
 
 function draw() {
@@ -401,11 +400,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     path = document.getElementById('path1')
     pathLength = Math.floor(path.getTotalLength());
 });
-
-function afterSetup() {
-    const mySVG = document.getElementById('titleSVG');
-    mySVG.style.display = 'block';
-}
 
 function showButt() {
     const butt = document.getElementById('helpButt');
