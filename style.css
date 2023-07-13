@@ -13,9 +13,6 @@ body {
     align-items: center;
 }
 
-
-/* button stuff */
-
 #titleSVG {
     position: fixed;
     width: 100%;
@@ -24,6 +21,11 @@ body {
     mix-blend-mode: soft-light;
     pointer-events: none;
     display: none;
+}
+
+#canvas-holder {
+    position: fixed;
+    top: 0;
 }
 
 .grid-container {
