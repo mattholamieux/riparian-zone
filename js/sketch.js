@@ -75,7 +75,7 @@ function setup() {
     cnv.mouseReleased(getReleasePoint);
     cnv.mouseWheel(trackPad);
     cnv.parent('canvas-holder');
-    frameRate(20);
+    frameRate(60);
 
     // Init settings for player
     player.loop = true;
@@ -218,13 +218,13 @@ function draw() {
             translate(width / 2, height / 2);
             point((thisPoint.x - originPoint.x + 20) * scaler, (thisPoint.y - originPoint.y + 10) * scaler);
             pop();
-            pathCounter += 3;
+            pathCounter += 2;
         } else {
             background("#bccf7509");
             setTimeout(function() {
                 loadingAnimation = false;
                 showButt();
-                console.log('load')
+                frameRate(20);
             }, 2000);
         }
     }
