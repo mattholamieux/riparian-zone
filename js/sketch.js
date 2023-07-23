@@ -20,7 +20,6 @@ let bitWet = 0;
 const delayTimes = ["64n", "32n", "16n", "8n", "4n", "2n", "1n"];
 let angleRotate = 0;
 let state = 0;
-let divis;
 r = 0;
 let initRect = false;
 let rzSvg;
@@ -77,7 +76,6 @@ function setup() {
     cnv.mouseWheel(trackPad);
     cnv.parent('canvas-holder');
     frameRate(60);
-
     // Init settings for player
     player.loop = true;
     player.playbackRate = 1;
@@ -90,7 +88,6 @@ function setup() {
     player.loopEnd = buffers[bufferIndex].duration;
     pressedPoint = 0;
     releasePoint = 1;
-    divis = width / 40;
 }
 
 function draw() {
@@ -129,7 +126,6 @@ function draw() {
                 rect(width / 2, height / 2, overlapDisplay, grainSizeDisplay);
             }
 
-
             // Draw rect to represent bit and cheby size
             let crushBlocks = floor(bits);
             let crushBlockWidth = width / crushBlocks;
@@ -167,7 +163,6 @@ function draw() {
                     if (mouseY < height && mouseY > 0) {
                         player.playbackRate = mouseY / (height / 2) + 0.05;
                     }
-
                 } else if (state === 1) {
                     if (mouseX < width && mouseX > 0) {
                         if (mouseX < width / 2) {
@@ -181,7 +176,6 @@ function draw() {
                             }
                             filter.frequency.value = -4000 + ((mouseX / width) * 8000);
                         }
-
                     }
                     if (mouseY < height && mouseY > 0) {
                         filter.Q.value = 20 - ((mouseY / height) * 20);
@@ -196,12 +190,8 @@ function draw() {
                         delay.feedback.value = 1 - mouseY / height;
                     }
                 } else if (state === 3) {
-                    if (mouseX < width && mouseX > 0) {
-
-                    }
-                    if (mouseY < height && mouseY > 0) {
-
-                    }
+                    if (mouseX < width && mouseX > 0) {}
+                    if (mouseY < height && mouseY > 0) {}
                 }
             }
         }
@@ -216,7 +206,6 @@ function draw() {
         let originPoint = path.getPointAtLength(0)
         push();
         let thisPoint = path.getPointAtLength(pathCounter)
-
         if (pathCounter < pathLength) {
             push();
             translate(width / 2, height / 2);
@@ -257,7 +246,6 @@ function calculateLoop() {
     // Calculate loop start and end points in relation to current buffer's duration
     loopStart = pressedPoint * buffers[bufferIndex].duration;
     loopEnd = releasePoint * buffers[bufferIndex].duration;
-
     // If mouse dragged left to right, play forwards
     if (loopStart < loopEnd) {
         player.loopStart = loopStart;
@@ -390,7 +378,6 @@ function trackPad(event) {
 async function initializeTone() {
     await Tone.start();
     Tone.Transport.start();
-    console.log("audio context started");
 }
 
 function windowResized() {
@@ -402,7 +389,6 @@ document.addEventListener("DOMContentLoaded", function(event) {
     document.querySelector('button').onclick = function() {
         sidebar.classList.toggle('sidebar_small');
     }
-
     path = document.getElementById('path1')
     pathLength = Math.floor(path.getTotalLength());
 });
