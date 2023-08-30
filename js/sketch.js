@@ -397,3 +397,13 @@ function showButt() {
     const butt = document.getElementById('helpButt');
     butt.style.display = 'block';
 }
+
+let audio_file = document.getElementById('audio_file');
+audio_file.onchange = function() {
+    var file = URL.createObjectURL(this.files[0]);
+    let buffer = new Tone.ToneAudioBuffer(file);
+    buffers.unshift(buffer);
+    player.buffer = buffers[0];
+    bufferIndex = 0;
+    calculateLoop();
+};
