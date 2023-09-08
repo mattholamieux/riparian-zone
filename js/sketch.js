@@ -24,7 +24,6 @@ let state = 0;
 let r = 0;
 let initRect = false;
 let rzSvg;
-let bgMult = 1;
 let path;
 let pathLength;
 let pathCounter = 0;
@@ -109,7 +108,6 @@ function draw() {
     if (!loadingAnimation) {
         if (player.loaded) {
             background("#bccf7530");
-            // filter(THRESHOLD);
             imageMode(CENTER);
             image(rzSvg, width / 2, height / 2);
             noStroke();
