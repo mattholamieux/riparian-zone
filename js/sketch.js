@@ -9,7 +9,6 @@ let bgIndex = 0;
 const buffers = [buffer1, buffer2, buffer3, buffer4, buffer5, buffer6, buffer7, buffer8]; // Defined in buffers.js
 let bufferIndex = 0;
 let loopStart, loopEnd, pressedPoint, releasePoint;
-let isPlaying = false;
 let grainSize = 0.1;
 let overlap = 0.1;
 let bits = 8;
@@ -17,10 +16,11 @@ let delayAmount = 0;
 let reverbAmount = 0;
 let chebyOrder = 1;
 let bitWet = 0;
+let gainVal = 0.7;
+let panVal = 0;
 const delayTimes = ["64n", "32n", "16n", "8n", "4n", "2n", "1n"];
-let angleRotate = 0;
 let state = 0;
-r = 0;
+let r = 0;
 let initRect = false;
 let rzSvg;
 let path;
@@ -63,6 +63,9 @@ const reverb = new Tone.Reverb({
     wet: 0
 });
 
+const gain = new Tone.Gain(gainVal);
+const panner = new Tone.Panner(panVal);
+
 function preload() {
     rzSvg = loadImage("images/TO_014_typetoken_type-01.png");
 }
@@ -83,7 +86,7 @@ function setup() {
     player.grainSize = grainSize;
     reverb.toDestination();
     reverb.connect(fft);
-    player.chain(crusher, cheby, delay, filter, reverb);
+    player.chain(crusher, cheby, delay, filter, gain, panner, reverb);
     player.loopStart = 0;
     player.loopEnd = buffers[bufferIndex].duration;
     pressedPoint = 0;
@@ -263,13 +266,13 @@ function calculateLoop() {
 function keyPressed() {
     // start and stop the player with the space bar
     if (key === " ") {
-        if (!isPlaying) {
+        if (player.state === "stopped") {
             initializeTone();
             player.sync().start("+0.5", loopStart);
-            isPlaying = true;
+            gain.gain.rampTo(1, 1, "+0.5");
         } else {
-            player.stop();
-            isPlaying = false;
+            gain.gain.rampTo(0, 1);
+            player.stop("+1")
         }
     }
 
