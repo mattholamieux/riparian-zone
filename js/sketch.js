@@ -338,7 +338,7 @@ function keyPressed() {
         state = 2;
     } else if (key === "4") {
         state = 3;
-    } else if (key === "Tab") {
+    } else if (key === "Shift") {
         octaveLock = !octaveLock;
         if (octaveLock) {
             secondaryInstructions[0] = "mouse x : octave"
@@ -476,9 +476,3 @@ audio_file.onchange = function() {
     bufferIndex = 0;
     calculateLoop();
 };
-
-document.onkeydown = function(t) {
-    if (t.which == 9) {
-        return false;
-    }
-}
