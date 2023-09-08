@@ -9,7 +9,6 @@ let bgIndex = 0;
 const buffers = [buffer1, buffer2, buffer3, buffer4, buffer5, buffer6, buffer7, buffer8]; // Defined in buffers.js
 let bufferIndex = 0;
 let loopStart, loopEnd, pressedPoint, releasePoint;
-let isPlaying = false;
 let grainSize = 0.1;
 let overlap = 0.1;
 let bits = 8;
@@ -17,6 +16,10 @@ let delayAmount = 0;
 let reverbAmount = 0;
 let chebyOrder = 1;
 let bitWet = 0;
+let gainVal = 0.7;
+let panVal = 0;
+let pitch = 0;
+let octave = 0;
 const delayTimes = ["64n", "32n", "16n", "8n", "4n", "2n", "1n"];
 let angleRotate = 0;
 let state = 0;
@@ -63,6 +66,9 @@ const reverb = new Tone.Reverb({
     wet: 0
 });
 
+const gain = new Tone.Gain(gainVal);
+const panner = new Tone.Panner(panVal);
+
 function preload() {
     rzSvg = loadImage("images/TO_014_typetoken_type-01.png");
 }
@@ -83,7 +89,7 @@ function setup() {
     player.grainSize = grainSize;
     reverb.toDestination();
     reverb.connect(fft);
-    player.chain(crusher, cheby, delay, filter, reverb);
+    player.chain(crusher, cheby, delay, filter, gain, panner, reverb);
     player.loopStart = 0;
     player.loopEnd = buffers[bufferIndex].duration;
     pressedPoint = 0;
@@ -93,10 +99,9 @@ function setup() {
 function draw() {
     if (!loadingAnimation) {
         if (player.loaded) {
-            background("#bccf7530")
+            // background("#bccf7530")
             imageMode(CENTER);
             image(rzSvg, width / 2, height / 2);
-
             noStroke();
             fill("#305431")
             textSize(20);
@@ -150,50 +155,77 @@ function draw() {
             // Draw rect to represent reverb amt
             let reverbDisplay = map(reverbAmount, 0, 1, 0, width * 2);
             rectMode(CENTER);
-            // fill(180, 220, 188, 60);
             fill("#3054313a")
             rect(0, height / 2, reverbDisplay, height);
 
-            // Affect player's tune and rate with mouseX and mouseY
-            if (player.state === "started") {
-                if (state === 0) {
-                    if (mouseX < width && mouseX > 0) {
-                        player.detune = (mouseX / (width / 4)) * 1200 - 2400;
-                    }
-                    if (mouseY < height && mouseY > 0) {
-                        player.playbackRate = mouseY / (height / 2) + 0.05;
-                    }
-                } else if (state === 1) {
-                    if (mouseX < width && mouseX > 0) {
-                        if (mouseX < width / 2) {
-                            if (filter.type === "highpass") {
-                                filter.type = "lowpass"
-                            }
-                            filter.frequency.value = (mouseX / width) * 8000;
-                        } else {
-                            if (filter.type === "lowpass") {
-                                filter.type = "highpass"
-                            }
-                            filter.frequency.value = -4000 + ((mouseX / width) * 8000);
-                        }
-                    }
-                    if (mouseY < height && mouseY > 0) {
-                        filter.Q.value = 20 - ((mouseY / height) * 20);
+            // draw rect to represent gain amt
+            let gainDisplay = map(gainVal, 0, 1, height, 0);
+            fill("#023020");
+            rect(10, gainDisplay, 10, 10);
 
-                    }
-                } else if (state === 2) {
-                    if (mouseX < width && mouseX > 0) {
-                        let delayTime = (mouseX / width) * 2;
-                        delay.delayTime.rampTo(delayTime, 0.5);
-                    }
-                    if (mouseY < height && mouseY > 0) {
-                        delay.feedback.value = 1 - mouseY / height;
-                    }
-                } else if (state === 3) {
-                    if (mouseX < width && mouseX > 0) {}
-                    if (mouseY < height && mouseY > 0) {}
-                }
+            // draw rect to represent pan amt
+            let panDisplay = map(panVal, -1, 1, 0, width);
+            fill("#023020");
+            rect(panDisplay, height - 10, 10, 10);
+
+            text(bufferIndex, 20, height - 10);
+
+            // Affect player's tune and rate with mouseX and mouseY
+
+            if (player.state === "started") {
+                background("#bccf7530")
+            } else {
+                background("#efffec10")
             }
+            if (state === 0) {
+                if (mouseX < width && mouseX > 0) {
+                    let detune = (mouseX / (width / 4)) * 1200 - 2400;
+                    if (detune > 1600) {
+                        octave = 2400;
+                    } else if (detune > 800) {
+                        octave = 1200;
+                    } else if (detune > -800) {
+                        octave = 0;
+                    } else if (detune > -1600) {
+                        octave = -1200;
+                    } else {
+                        octave = -2400;
+                    }
+                }
+                if (mouseY < height && mouseY > 0) {
+                    player.playbackRate = mouseY / (height / 2) + 0.05;
+                }
+            } else if (state === 1) {
+                if (mouseX < width && mouseX > 0) {
+                    if (mouseX < width / 2) {
+                        if (filter.type === "highpass") {
+                            filter.type = "lowpass"
+                        }
+                        filter.frequency.value = (mouseX / width) * 8000;
+                    } else {
+                        if (filter.type === "lowpass") {
+                            filter.type = "highpass"
+                        }
+                        filter.frequency.value = -4000 + ((mouseX / width) * 8000);
+                    }
+                }
+                if (mouseY < height && mouseY > 0) {
+                    filter.Q.value = 20 - ((mouseY / height) * 20);
+
+                }
+            } else if (state === 2) {
+                if (mouseX < width && mouseX > 0) {
+                    let delayTime = (mouseX / width) * 2;
+                    delay.delayTime.rampTo(delayTime, 0.5);
+                }
+                if (mouseY < height && mouseY > 0) {
+                    delay.feedback.value = 1 - mouseY / height;
+                }
+            } else if (state === 3) {
+                if (mouseX < width && mouseX > 0) {}
+                if (mouseY < height && mouseY > 0) {}
+            }
+            player.detune = octave + pitch;
         }
     } else {
         if (firstLoop) {
@@ -226,7 +258,6 @@ function draw() {
 
 function getPressedPoint() {
     // Capture mouse pressed x and y
-    player.stop();
     player.playbackRate = 1;
     pressedPoint = mouseX / width;
     x1 = mouseX;
@@ -246,30 +277,38 @@ function calculateLoop() {
     // Calculate loop start and end points in relation to current buffer's duration
     loopStart = pressedPoint * buffers[bufferIndex].duration;
     loopEnd = releasePoint * buffers[bufferIndex].duration;
-    // If mouse dragged left to right, play forwards
+    gain.gain.rampTo(0, 1);
+    player.stop("+1")
+        // If mouse dragged left to right, play forwards
     if (loopStart < loopEnd) {
         player.loopStart = loopStart;
         player.loopEnd = loopEnd;
         player.reverse = false;
-        player.sync().start("+0.5", loopStart);
+        if (player.state === "started") {
+            player.sync().start("+1.01", loopStart);
+            gain.gain.rampTo(1, 1, "+1.01");
+        }
     } else { // otherwise, play backwards
         player.loopStart = loopEnd;
         player.loopEnd = loopStart;
         player.reverse = true;
-        player.sync().start("+0.5", loopEnd);
+        if (player.state === "started") {
+            player.sync().start("+1.01", loopEnd);
+            gain.gain.rampTo(1, 1, "+1.01");
+        }
     }
 }
 
 function keyPressed() {
     // start and stop the player with the space bar
     if (key === " ") {
-        if (!isPlaying) {
+        if (player.state === "stopped") {
             initializeTone();
             player.sync().start("+0.5", loopStart);
-            isPlaying = true;
+            gain.gain.rampTo(1, 1);
         } else {
-            player.stop();
-            isPlaying = false;
+            gain.gain.rampTo(0, 1);
+            player.stop("+1")
         }
     }
 
@@ -296,15 +335,38 @@ function keyPressed() {
 
     if (key === "1") {
         state = 0;
-    }
-    if (key === "2") {
+    } else if (key === "2") {
         state = 1;
-    }
-    if (key === "3") {
+    } else if (key === "3") {
         state = 2;
-    }
-    if (key === "4") {
+    } else if (key === "4") {
         state = 3;
+    } else if (key === "a") {
+        pitch = 0;
+    } else if (key === "w") {
+        pitch = 100;
+    } else if (key === "s") {
+        pitch = 200;
+    } else if (key === "e") {
+        pitch = 300;
+    } else if (key === "d") {
+        pitch = 400;
+    } else if (key === "f") {
+        pitch = 500;
+    } else if (key === "t") {
+        pitch = 600;
+    } else if (key === "g") {
+        pitch = 700;
+    } else if (key === "y") {
+        pitch = 800;
+    } else if (key === "h") {
+        pitch = 900;
+    } else if (key === "u") {
+        pitch = 1000;
+    } else if (key === "j") {
+        pitch = 1100;
+    } else if (key === "k") {
+        pitch = 1200;
     }
 }
 
@@ -372,6 +434,26 @@ function trackPad(event) {
         }
         delay.wet.value = delayAmount;
         reverb.wet.value = reverbAmount;
+    } else if (state === 3) {
+        if (event.wheelDeltaY > 10) {
+            if (gainVal > 0.01) {
+                gainVal -= 0.01;
+            }
+        } else if (event.wheelDeltaY < -10) {
+            if (gainVal < 0.98) {
+                gainVal += 0.01;
+            }
+        } else if (event.wheelDeltaX < -10) {
+            if (panVal > -0.98) {
+                panVal -= 0.01;
+            }
+        } else if (event.wheelDeltaX > 10) {
+            if (panVal < 0.98) {
+                panVal += 0.01;
+            }
+        }
+        gain.gain.value = gainVal;
+        panner.pan.value = panVal;
     }
 }
 
