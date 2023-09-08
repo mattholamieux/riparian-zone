@@ -18,6 +18,7 @@ let chebyOrder = 1;
 let bitWet = 0;
 let gainVal = 0.7;
 let panVal = 0;
+let octaveLock = false;
 const delayTimes = ["64n", "32n", "16n", "8n", "4n", "2n", "1n"];
 let state = 0;
 let r = 0;
@@ -153,7 +154,6 @@ function draw() {
             // Draw rect to represent reverb amt
             let reverbDisplay = map(reverbAmount, 0, 1, 0, width * 2);
             rectMode(CENTER);
-            // fill(180, 220, 188, 60);
             fill("#3054313a")
             rect(0, height / 2, reverbDisplay, height);
 
@@ -161,7 +161,24 @@ function draw() {
             if (player.state === "started") {
                 if (state === 0) {
                     if (mouseX < width && mouseX > 0) {
-                        player.detune = (mouseX / (width / 4)) * 1200 - 2400;
+                        let detune = (mouseX / (width / 4)) * 1200 - 2400;
+                        if (detune > 1600) {
+                            octave = 2400;
+                        } else if (detune > 800) {
+                            octave = 1200;
+                        } else if (detune > -800) {
+                            octave = 0;
+                        } else if (detune > -1600) {
+                            octave = -1200;
+                        } else {
+                            octave = -2400;
+                        }
+
+                        if (octaveLock) {
+                            player.detune = octave;
+                        } else {
+                            player.detune = detune;
+                        }
                     }
                     if (mouseY < height && mouseY > 0) {
                         player.playbackRate = mouseY / (height / 2) + 0.05;
@@ -281,16 +298,12 @@ function keyPressed() {
             gain.gain.rampTo(0, 1);
             player.stop("+1")
         }
-    }
-
-    // cycle through buffers and backgrounds with right or left arrow
-    if (key === "ArrowRight") {
+    } else if (key === "ArrowRight") { // cycle through buffers and backgrounds with right or left arrow
         bufferIndex = (bufferIndex + 1) % buffers.length;
         player.buffer = buffers[bufferIndex];
         calculateLoop();
         bgIndex = (bgIndex + 1) % bgColors.length;
-    }
-    if (key === "ArrowLeft") {
+    } else if (key === "ArrowLeft") {
         if (bufferIndex > 0) {
             bufferIndex = (bufferIndex - 1) % buffers.length;
             player.buffer = buffers[bufferIndex];
@@ -302,19 +315,16 @@ function keyPressed() {
             calculateLoop();
             bgIndex = bgColors.length - 1;
         }
-    }
-
-    if (key === "1") {
+    } else if (key === "1") {
         state = 0;
-    }
-    if (key === "2") {
+    } else if (key === "2") {
         state = 1;
-    }
-    if (key === "3") {
+    } else if (key === "3") {
         state = 2;
-    }
-    if (key === "4") {
+    } else if (key === "4") {
         state = 3;
+    } else if (key === "Tab") {
+        octaveLock = !octaveLock;
     }
 }
 
