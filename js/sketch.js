@@ -89,7 +89,7 @@ function setup() {
         player.grainSize = grainSize;
         reverb.toDestination();
         reverb.connect(fft);
-        player.chain(gain, crusher, cheby, delay, filterNode, panner, reverb);
+        player.chain(gain, crusher, cheby, filterNode, panner, delay, reverb);
         player.loopStart = 0;
         player.loopEnd = buffers[bufferIndex].duration;
         pressedPoint = 0;
@@ -445,7 +445,12 @@ function windowResized() {
 
 document.addEventListener("DOMContentLoaded", function(event) {
     const sidebar = document.querySelector('.sidebar');
-    document.querySelector('button').onclick = function() {
+    const myButton = document.querySelector('button');
+    myButton.onclick = function(event) {
+        console.log(event)
+        event.target.blur();
+        // event.stopPropagation();
+        // event.preventDefault();
         sidebar.classList.toggle('sidebar_small');
     }
     path = document.getElementById('path1')
