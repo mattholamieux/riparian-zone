@@ -18,6 +18,8 @@ let chebyOrder = 1;
 let bitWet = 0;
 let gainVal = 0.7;
 let panVal = 0;
+let panVelocity = 0;
+let gainVelocity = 0;
 let octaveLock = false;
 const delayTimes = ["64n", "32n", "16n", "8n", "4n", "2n", "1n"];
 let state = 0;
@@ -89,7 +91,7 @@ function setup() {
         player.grainSize = grainSize;
         reverb.toDestination();
         reverb.connect(fft);
-        player.chain(crusher, cheby, delay, filter, gain, panner, reverb);
+        player.chain(gain, crusher, cheby, delay, filter, panner, reverb);
         player.loopStart = 0;
         player.loopEnd = buffers[bufferIndex].duration;
         pressedPoint = 0;
@@ -118,11 +120,11 @@ function draw() {
             textFont("serif");
             textAlign(LEFT);
             for (i = 0; i < mainInstructions.length; i++) {
-                text(mainInstructions[i], 10, 20 * [i] + 30);
+                text(mainInstructions[i], 20, 20 * [i] + 30);
             }
             textAlign(RIGHT);
             for (i = state * 4; i < (state * 4) + 4; i++) {
-                text(secondaryInstructions[i], width - 10, 20 * [i] + 30);
+                text(secondaryInstructions[i], width - 20, 20 * [i] + 30);
             }
 
             // Draw rect to indicate loop start and end
@@ -145,7 +147,6 @@ function draw() {
             let crushBlockWidth = width / crushBlocks;
             let crushBlockHeight = height / crushBlocks;
             noFill();
-            // fill((bitWet * 100), mouseY / 2, bgColors[bgIndex], (bitWet * 200));
             stroke(48, 84, 49, (bitWet * 150));
             strokeWeight(4);
             for (let i = 1; i < crushBlocks; i++) {
@@ -166,6 +167,18 @@ function draw() {
             rectMode(CENTER);
             fill("#3054313a")
             rect(0, height / 2, reverbDisplay, height);
+
+            // draw rect to represent gain amt
+            let gainDisplay = map(gainVal, 0, 1, height, 0);
+            fill(48, 84, 49, gainVelocity);
+            rect(10, gainDisplay, 10, 10);
+            gainVelocity = 0;
+
+            // draw rect to represent pan amt
+            let panDisplay = map(panVal, -1, 1, 0, width);
+            fill(48, 84, 49, panVelocity);
+            rect(panDisplay, height - 10, 10, 10);
+            panVelocity = 0;
 
             // Affect player's tune and rate with mouseX and mouseY
             if (player.state === "started") {
@@ -213,15 +226,13 @@ function draw() {
                     }
                 } else if (state === 2) {
                     if (mouseX < width && mouseX > 0) {
-                        let delayTime = (mouseX / width) * 2;
+                        let delayTime = (mouseX / width) * 4;
                         delay.delayTime.rampTo(delayTime, 0.5);
+                        console.log(delay.delayTime.value)
                     }
                     if (mouseY < height && mouseY > 0) {
                         delay.feedback.value = 1 - mouseY / height;
                     }
-                } else if (state === 3) {
-                    if (mouseX < width && mouseX > 0) {}
-                    if (mouseY < height && mouseY > 0) {}
                 }
             }
         }
@@ -401,6 +412,30 @@ function trackPad(event) {
         }
         delay.wet.value = delayAmount;
         reverb.wet.value = reverbAmount;
+    } else if (state === 3) {
+        if (event.wheelDeltaY > 10) {
+            gainVelocity = 100;
+            if (gainVal > 0.01) {
+                gainVal -= 0.01;
+            }
+        } else if (event.wheelDeltaY < -10) {
+            gainVelocity = 100;
+            if (gainVal < 0.98) {
+                gainVal += 0.01;
+            }
+        } else if (event.wheelDeltaX < -10) {
+            panVelocity = 100;
+            if (panVal > -0.98) {
+                panVal -= 0.01;
+            }
+        } else if (event.wheelDeltaX > 10) {
+            panVelocity = 100;
+            if (panVal < 0.98) {
+                panVal += 0.01;
+            }
+        }
+        gain.gain.value = gainVal;
+        panner.pan.value = panVal;
     }
 }
 

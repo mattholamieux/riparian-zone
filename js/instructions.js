@@ -21,8 +21,8 @@ const secondaryInstructions = [
     "mouse y : delay feedback",
     "scroll ↕ : delay amount",
     "scroll ↔ : reverb amount",
-    "let it play",
-    " ",
+    "scroll ↕ : volume",
+    "scroll ↔ : pan",
     " ",
     " "
 ]
