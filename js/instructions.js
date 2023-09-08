@@ -4,6 +4,7 @@ const mainInstructions = [
     "click + drag ↔ to set loop points",
     // "(dragging right to left plays in reverse)",
     "left & right arrows change track",
+    "tab locks pitch to octaves",
     "1, 2, 3, 4 for options"
 ];
 
@@ -20,8 +21,8 @@ const secondaryInstructions = [
     "mouse y : delay feedback",
     "scroll ↕ : delay amount",
     "scroll ↔ : reverb amount",
-    "let it play",
-    " ",
+    "scroll ↕ : volume",
+    "scroll ↔ : pan",
     " ",
     " "
 ]

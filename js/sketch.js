@@ -5,11 +5,9 @@ let x1 = 0,
     y1 = 0,
     y2 = 0;
 const bgColors = [100, 150, 250];
-let bgIndex = 0;
 const buffers = [buffer1, buffer2, buffer3, buffer4, buffer5, buffer6, buffer7, buffer8]; // Defined in buffers.js
 let bufferIndex = 0;
 let loopStart, loopEnd, pressedPoint, releasePoint;
-let isPlaying = false;
 let grainSize = 0.1;
 let overlap = 0.1;
 let bits = 8;
@@ -17,10 +15,13 @@ let delayAmount = 0;
 let reverbAmount = 0;
 let chebyOrder = 1;
 let bitWet = 0;
-const delayTimes = ["64n", "32n", "16n", "8n", "4n", "2n", "1n"];
-let angleRotate = 0;
+let gainVal = 0.7;
+let panVal = 0;
+let panVelocity = 0;
+let gainVelocity = 0;
+let octaveLock = false;
 let state = 0;
-r = 0;
+let r = 0;
 let initRect = false;
 let rzSvg;
 let path;
@@ -46,7 +47,7 @@ const cheby = new Tone.Chebyshev({
     order: 1
 });
 
-const filter = new Tone.Filter({
+const filterNode = new Tone.Filter({
     frequency: 10000,
     Q: 2,
     type: "lowpass"
@@ -63,40 +64,52 @@ const reverb = new Tone.Reverb({
     wet: 0
 });
 
+const gain = new Tone.Gain(gainVal);
+const panner = new Tone.Panner(panVal);
+
 function preload() {
     rzSvg = loadImage("images/TO_014_typetoken_type-01.png");
 }
 
 function setup() {
-    // Create canvas and attch mouse events with callbacks
-    cnv = createCanvas(windowWidth, windowHeight);
-    cnv.style('display', 'block');
-    cnv.mousePressed(getPressedPoint);
-    cnv.mouseReleased(getReleasePoint);
-    cnv.mouseWheel(trackPad);
-    cnv.parent('canvas-holder');
-    frameRate(60);
-    // Init settings for player
-    player.loop = true;
-    player.playbackRate = 1;
-    player.overlap = overlap;
-    player.grainSize = grainSize;
-    reverb.toDestination();
-    reverb.connect(fft);
-    player.chain(crusher, cheby, delay, filter, reverb);
-    player.loopStart = 0;
-    player.loopEnd = buffers[bufferIndex].duration;
-    pressedPoint = 0;
-    releasePoint = 1;
+
+    if (windowWidth > 1100) {
+        // Create canvas and attch mouse events with callbacks
+        cnv = createCanvas(windowWidth, windowHeight);
+        cnv.style('display', 'block');
+        cnv.mousePressed(getPressedPoint);
+        cnv.mouseReleased(getReleasePoint);
+        cnv.mouseWheel(trackPad);
+        cnv.parent('canvas-holder');
+        frameRate(60);
+        // Init settings for player
+        player.loop = true;
+        player.playbackRate = 1;
+        player.overlap = overlap;
+        player.grainSize = grainSize;
+        reverb.toDestination();
+        reverb.connect(fft);
+        player.chain(gain, crusher, cheby, filterNode, panner, delay, reverb);
+        player.loopStart = 0;
+        player.loopEnd = buffers[bufferIndex].duration;
+        pressedPoint = 0;
+        releasePoint = 1;
+    } else {
+        cnv = createCanvas(windowWidth, windowHeight);
+        noLoop();
+        fill('#000')
+        textSize(20);
+        text("This app is designed to run on devices with", 10, height / 2);
+        text("display widths of at least 1100 pixels", 10, height / 2 + 20);
+    }
 }
 
 function draw() {
     if (!loadingAnimation) {
         if (player.loaded) {
-            background("#bccf7530")
+            background("#bccf7530");
             imageMode(CENTER);
             image(rzSvg, width / 2, height / 2);
-
             noStroke();
             fill("#305431")
             textSize(20);
@@ -104,11 +117,11 @@ function draw() {
             textFont("serif");
             textAlign(LEFT);
             for (i = 0; i < mainInstructions.length; i++) {
-                text(mainInstructions[i], 10, 20 * [i] + 30);
+                text(mainInstructions[i], 20, 20 * [i] + 30);
             }
             textAlign(RIGHT);
             for (i = state * 4; i < (state * 4) + 4; i++) {
-                text(secondaryInstructions[i], width - 10, 20 * [i] + 30);
+                text(secondaryInstructions[i], width - 20, 20 * [i] + 30);
             }
 
             // Draw rect to indicate loop start and end
@@ -131,7 +144,6 @@ function draw() {
             let crushBlockWidth = width / crushBlocks;
             let crushBlockHeight = height / crushBlocks;
             noFill();
-            // fill((bitWet * 100), mouseY / 2, bgColors[bgIndex], (bitWet * 200));
             stroke(48, 84, 49, (bitWet * 150));
             strokeWeight(4);
             for (let i = 1; i < crushBlocks; i++) {
@@ -150,15 +162,43 @@ function draw() {
             // Draw rect to represent reverb amt
             let reverbDisplay = map(reverbAmount, 0, 1, 0, width * 2);
             rectMode(CENTER);
-            // fill(180, 220, 188, 60);
             fill("#3054313a")
             rect(0, height / 2, reverbDisplay, height);
+
+            // draw rect to represent gain amt
+            let gainDisplay = map(gainVal, 0, 1, height, 0);
+            fill(48, 84, 49, gainVelocity);
+            rect(10, gainDisplay, 10, 10);
+            gainVelocity = 0;
+
+            // draw rect to represent pan amt
+            let panDisplay = map(panVal, -1, 1, 0, width);
+            fill(48, 84, 49, panVelocity);
+            rect(panDisplay, height - 10, 10, 10);
+            panVelocity = 0;
 
             // Affect player's tune and rate with mouseX and mouseY
             if (player.state === "started") {
                 if (state === 0) {
                     if (mouseX < width && mouseX > 0) {
-                        player.detune = (mouseX / (width / 4)) * 1200 - 2400;
+                        let detune = (mouseX / (width / 4)) * 1200 - 2400;
+                        if (detune > 1600) {
+                            octave = 2400;
+                        } else if (detune > 800) {
+                            octave = 1200;
+                        } else if (detune > -800) {
+                            octave = 0;
+                        } else if (detune > -1600) {
+                            octave = -1200;
+                        } else {
+                            octave = -2400;
+                        }
+
+                        if (octaveLock) {
+                            player.detune = octave;
+                        } else {
+                            player.detune = detune;
+                        }
                     }
                     if (mouseY < height && mouseY > 0) {
                         player.playbackRate = mouseY / (height / 2) + 0.05;
@@ -166,32 +206,29 @@ function draw() {
                 } else if (state === 1) {
                     if (mouseX < width && mouseX > 0) {
                         if (mouseX < width / 2) {
-                            if (filter.type === "highpass") {
-                                filter.type = "lowpass"
+                            if (filterNode.type === "highpass") {
+                                filterNode.type = "lowpass"
                             }
-                            filter.frequency.value = (mouseX / width) * 8000;
+                            filterNode.frequency.value = (mouseX / width) * 8000;
                         } else {
-                            if (filter.type === "lowpass") {
-                                filter.type = "highpass"
+                            if (filterNode.type === "lowpass") {
+                                filterNode.type = "highpass"
                             }
-                            filter.frequency.value = -4000 + ((mouseX / width) * 8000);
+                            filterNode.frequency.value = -4000 + ((mouseX / width) * 8000);
                         }
                     }
                     if (mouseY < height && mouseY > 0) {
-                        filter.Q.value = 20 - ((mouseY / height) * 20);
+                        filterNode.Q.value = 20 - ((mouseY / height) * 20);
 
                     }
                 } else if (state === 2) {
                     if (mouseX < width && mouseX > 0) {
-                        let delayTime = (mouseX / width) * 2;
+                        let delayTime = (mouseX / width) * 4;
                         delay.delayTime.rampTo(delayTime, 0.5);
                     }
                     if (mouseY < height && mouseY > 0) {
                         delay.feedback.value = 1 - mouseY / height;
                     }
-                } else if (state === 3) {
-                    if (mouseX < width && mouseX > 0) {}
-                    if (mouseY < height && mouseY > 0) {}
                 }
             }
         }
@@ -218,7 +255,6 @@ function draw() {
                 loadingAnimation = false;
                 showButt();
                 frameRate(20);
-
             }, 2000);
         }
     }
@@ -226,7 +262,6 @@ function draw() {
 
 function getPressedPoint() {
     // Capture mouse pressed x and y
-    player.stop();
     player.playbackRate = 1;
     pressedPoint = mouseX / width;
     x1 = mouseX;
@@ -246,65 +281,65 @@ function calculateLoop() {
     // Calculate loop start and end points in relation to current buffer's duration
     loopStart = pressedPoint * buffers[bufferIndex].duration;
     loopEnd = releasePoint * buffers[bufferIndex].duration;
-    // If mouse dragged left to right, play forwards
+    gain.gain.rampTo(0, 1);
+    player.stop("+1")
+        // If mouse dragged left to right, play forwards
     if (loopStart < loopEnd) {
         player.loopStart = loopStart;
         player.loopEnd = loopEnd;
         player.reverse = false;
-        player.sync().start("+0.5", loopStart);
+        if (player.state === "started") {
+            player.sync().start("+1.01", loopStart);
+            gain.gain.rampTo(1, 1, "+1.01");
+        }
     } else { // otherwise, play backwards
         player.loopStart = loopEnd;
         player.loopEnd = loopStart;
         player.reverse = true;
-        player.sync().start("+0.5", loopEnd);
+        if (player.state === "started") {
+            player.sync().start("+1.01", loopEnd);
+            gain.gain.rampTo(1, 1, "+1.01");
+        }
     }
 }
 
 function keyPressed() {
     // start and stop the player with the space bar
     if (key === " ") {
-        if (!isPlaying) {
+        if (player.state === "stopped") {
             initializeTone();
             player.sync().start("+0.5", loopStart);
-            isPlaying = true;
+            gain.gain.rampTo(1, 1, "+0.5");
+            cnv.style('filter', 'grayscale(0%)');
         } else {
-            player.stop();
-            isPlaying = false;
+            gain.gain.rampTo(0, 1);
+            player.stop("+1");
+            cnv.style('filter', 'grayscale(50%)');
         }
-    }
-
-    // cycle through buffers and backgrounds with right or left arrow
-    if (key === "ArrowRight") {
+    } else if (key === "ArrowRight") { // cycle through buffers and backgrounds with right or left arrow
         bufferIndex = (bufferIndex + 1) % buffers.length;
         player.buffer = buffers[bufferIndex];
         calculateLoop();
-        bgIndex = (bgIndex + 1) % bgColors.length;
-    }
-    if (key === "ArrowLeft") {
+    } else if (key === "ArrowLeft") {
         if (bufferIndex > 0) {
             bufferIndex = (bufferIndex - 1) % buffers.length;
             player.buffer = buffers[bufferIndex];
             calculateLoop();
-            bgIndex = (bgIndex + 1) % bgColors.length;
         } else {
             bufferIndex = buffers.length - 1;
             player.buffer = buffers[bufferIndex];
             calculateLoop();
-            bgIndex = bgColors.length - 1;
         }
-    }
-
-    if (key === "1") {
+    } else if (key === "1") {
         state = 0;
-    }
-    if (key === "2") {
+    } else if (key === "2") {
         state = 1;
-    }
-    if (key === "3") {
+    } else if (key === "3") {
         state = 2;
-    }
-    if (key === "4") {
+    } else if (key === "4") {
         state = 3;
+    } else if (key === "Tab") {
+        octaveLock = !octaveLock;
     }
 }
 
@@ -372,6 +407,30 @@ function trackPad(event) {
         }
         delay.wet.value = delayAmount;
         reverb.wet.value = reverbAmount;
+    } else if (state === 3) {
+        if (event.wheelDeltaY > 10) {
+            gainVelocity = 200;
+            if (gainVal > 0.01) {
+                gainVal -= 0.01;
+            }
+        } else if (event.wheelDeltaY < -10) {
+            gainVelocity = 200;
+            if (gainVal < 0.98) {
+                gainVal += 0.01;
+            }
+        } else if (event.wheelDeltaX < -10) {
+            panVelocity = 100;
+            if (panVal > -0.98) {
+                panVal -= 0.01;
+            }
+        } else if (event.wheelDeltaX > 10) {
+            panVelocity = 100;
+            if (panVal < 0.98) {
+                panVal += 0.01;
+            }
+        }
+        gain.gain.value = gainVal;
+        panner.pan.value = panVal;
     }
 }
 
@@ -386,7 +445,12 @@ function windowResized() {
 
 document.addEventListener("DOMContentLoaded", function(event) {
     const sidebar = document.querySelector('.sidebar');
-    document.querySelector('button').onclick = function() {
+    const myButton = document.querySelector('button');
+    myButton.onclick = function(event) {
+        console.log(event)
+        event.target.blur();
+        // event.stopPropagation();
+        // event.preventDefault();
         sidebar.classList.toggle('sidebar_small');
     }
     path = document.getElementById('path1')
