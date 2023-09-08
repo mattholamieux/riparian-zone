@@ -229,7 +229,6 @@ function draw() {
 
 function getPressedPoint() {
     // Capture mouse pressed x and y
-    player.stop();
     player.playbackRate = 1;
     pressedPoint = mouseX / width;
     x1 = mouseX;
@@ -249,17 +248,25 @@ function calculateLoop() {
     // Calculate loop start and end points in relation to current buffer's duration
     loopStart = pressedPoint * buffers[bufferIndex].duration;
     loopEnd = releasePoint * buffers[bufferIndex].duration;
-    // If mouse dragged left to right, play forwards
+    gain.gain.rampTo(0, 1);
+    player.stop("+1")
+        // If mouse dragged left to right, play forwards
     if (loopStart < loopEnd) {
         player.loopStart = loopStart;
         player.loopEnd = loopEnd;
         player.reverse = false;
-        player.sync().start("+0.5", loopStart);
+        if (player.state === "started") {
+            player.sync().start("+1.01", loopStart);
+            gain.gain.rampTo(1, 1, "+1.01");
+        }
     } else { // otherwise, play backwards
         player.loopStart = loopEnd;
         player.loopEnd = loopStart;
         player.reverse = true;
-        player.sync().start("+0.5", loopEnd);
+        if (player.state === "started") {
+            player.sync().start("+1.01", loopEnd);
+            gain.gain.rampTo(1, 1, "+1.01");
+        }
     }
 }
 
