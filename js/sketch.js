@@ -5,7 +5,6 @@ let x1 = 0,
     y1 = 0,
     y2 = 0;
 const bgColors = [100, 150, 250];
-let bgIndex = 0;
 const buffers = [buffer1, buffer2, buffer3, buffer4, buffer5, buffer6, buffer7, buffer8]; // Defined in buffers.js
 let bufferIndex = 0;
 let loopStart, loopEnd, pressedPoint, releasePoint;
@@ -21,11 +20,11 @@ let panVal = 0;
 let panVelocity = 0;
 let gainVelocity = 0;
 let octaveLock = false;
-const delayTimes = ["64n", "32n", "16n", "8n", "4n", "2n", "1n"];
 let state = 0;
 let r = 0;
 let initRect = false;
 let rzSvg;
+let bgMult = 1;
 let path;
 let pathLength;
 let pathCounter = 0;
@@ -49,7 +48,7 @@ const cheby = new Tone.Chebyshev({
     order: 1
 });
 
-const filter = new Tone.Filter({
+const filterNode = new Tone.Filter({
     frequency: 10000,
     Q: 2,
     type: "lowpass"
@@ -91,7 +90,7 @@ function setup() {
         player.grainSize = grainSize;
         reverb.toDestination();
         reverb.connect(fft);
-        player.chain(gain, crusher, cheby, delay, filter, panner, reverb);
+        player.chain(gain, crusher, cheby, delay, filterNode, panner, reverb);
         player.loopStart = 0;
         player.loopEnd = buffers[bufferIndex].duration;
         pressedPoint = 0;
@@ -109,10 +108,10 @@ function setup() {
 function draw() {
     if (!loadingAnimation) {
         if (player.loaded) {
-            background("#bccf7530")
+            background("#bccf7530");
+            // filter(THRESHOLD);
             imageMode(CENTER);
             image(rzSvg, width / 2, height / 2);
-
             noStroke();
             fill("#305431")
             textSize(20);
@@ -209,26 +208,25 @@ function draw() {
                 } else if (state === 1) {
                     if (mouseX < width && mouseX > 0) {
                         if (mouseX < width / 2) {
-                            if (filter.type === "highpass") {
-                                filter.type = "lowpass"
+                            if (filterNode.type === "highpass") {
+                                filterNode.type = "lowpass"
                             }
-                            filter.frequency.value = (mouseX / width) * 8000;
+                            filterNode.frequency.value = (mouseX / width) * 8000;
                         } else {
-                            if (filter.type === "lowpass") {
-                                filter.type = "highpass"
+                            if (filterNode.type === "lowpass") {
+                                filterNode.type = "highpass"
                             }
-                            filter.frequency.value = -4000 + ((mouseX / width) * 8000);
+                            filterNode.frequency.value = -4000 + ((mouseX / width) * 8000);
                         }
                     }
                     if (mouseY < height && mouseY > 0) {
-                        filter.Q.value = 20 - ((mouseY / height) * 20);
+                        filterNode.Q.value = 20 - ((mouseY / height) * 20);
 
                     }
                 } else if (state === 2) {
                     if (mouseX < width && mouseX > 0) {
                         let delayTime = (mouseX / width) * 4;
                         delay.delayTime.rampTo(delayTime, 0.5);
-                        console.log(delay.delayTime.value)
                     }
                     if (mouseY < height && mouseY > 0) {
                         delay.feedback.value = 1 - mouseY / height;
@@ -314,26 +312,25 @@ function keyPressed() {
             initializeTone();
             player.sync().start("+0.5", loopStart);
             gain.gain.rampTo(1, 1, "+0.5");
+            cnv.style('filter', 'grayscale(0%)');
         } else {
             gain.gain.rampTo(0, 1);
-            player.stop("+1")
+            player.stop("+1");
+            cnv.style('filter', 'grayscale(50%)');
         }
     } else if (key === "ArrowRight") { // cycle through buffers and backgrounds with right or left arrow
         bufferIndex = (bufferIndex + 1) % buffers.length;
         player.buffer = buffers[bufferIndex];
         calculateLoop();
-        bgIndex = (bgIndex + 1) % bgColors.length;
     } else if (key === "ArrowLeft") {
         if (bufferIndex > 0) {
             bufferIndex = (bufferIndex - 1) % buffers.length;
             player.buffer = buffers[bufferIndex];
             calculateLoop();
-            bgIndex = (bgIndex + 1) % bgColors.length;
         } else {
             bufferIndex = buffers.length - 1;
             player.buffer = buffers[bufferIndex];
             calculateLoop();
-            bgIndex = bgColors.length - 1;
         }
     } else if (key === "1") {
         state = 0;
@@ -414,12 +411,12 @@ function trackPad(event) {
         reverb.wet.value = reverbAmount;
     } else if (state === 3) {
         if (event.wheelDeltaY > 10) {
-            gainVelocity = 100;
+            gainVelocity = 200;
             if (gainVal > 0.01) {
                 gainVal -= 0.01;
             }
         } else if (event.wheelDeltaY < -10) {
-            gainVelocity = 100;
+            gainVelocity = 200;
             if (gainVal < 0.98) {
                 gainVal += 0.01;
             }
