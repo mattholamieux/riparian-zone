@@ -4,6 +4,7 @@ const mainInstructions = [
     "click + drag ↔ to set loop points",
     // "(dragging right to left plays in reverse)",
     "left & right arrows change track",
+    "tab locks pitch to octaves",
     "1, 2, 3, 4 for options"
 ];
 
