@@ -340,6 +340,11 @@ function keyPressed() {
         state = 3;
     } else if (key === "Tab") {
         octaveLock = !octaveLock;
+        if (octaveLock) {
+            secondaryInstructions[0] = "mouse x : octave"
+        } else {
+            secondaryInstructions[0] = "mouse x : pitch"
+        }
     }
 }
 
@@ -471,3 +476,9 @@ audio_file.onchange = function() {
     bufferIndex = 0;
     calculateLoop();
 };
+
+document.onkeydown = function(t) {
+    if (t.which == 9) {
+        return false;
+    }
+}
