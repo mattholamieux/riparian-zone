@@ -72,26 +72,36 @@ function preload() {
 }
 
 function setup() {
-    // Create canvas and attch mouse events with callbacks
-    cnv = createCanvas(windowWidth, windowHeight);
-    cnv.style('display', 'block');
-    cnv.mousePressed(getPressedPoint);
-    cnv.mouseReleased(getReleasePoint);
-    cnv.mouseWheel(trackPad);
-    cnv.parent('canvas-holder');
-    frameRate(60);
-    // Init settings for player
-    player.loop = true;
-    player.playbackRate = 1;
-    player.overlap = overlap;
-    player.grainSize = grainSize;
-    reverb.toDestination();
-    reverb.connect(fft);
-    player.chain(crusher, cheby, delay, filter, gain, panner, reverb);
-    player.loopStart = 0;
-    player.loopEnd = buffers[bufferIndex].duration;
-    pressedPoint = 0;
-    releasePoint = 1;
+
+    if (windowWidth > 1100) {
+        // Create canvas and attch mouse events with callbacks
+        cnv = createCanvas(windowWidth, windowHeight);
+        cnv.style('display', 'block');
+        cnv.mousePressed(getPressedPoint);
+        cnv.mouseReleased(getReleasePoint);
+        cnv.mouseWheel(trackPad);
+        cnv.parent('canvas-holder');
+        frameRate(60);
+        // Init settings for player
+        player.loop = true;
+        player.playbackRate = 1;
+        player.overlap = overlap;
+        player.grainSize = grainSize;
+        reverb.toDestination();
+        reverb.connect(fft);
+        player.chain(crusher, cheby, delay, filter, gain, panner, reverb);
+        player.loopStart = 0;
+        player.loopEnd = buffers[bufferIndex].duration;
+        pressedPoint = 0;
+        releasePoint = 1;
+    } else {
+        cnv = createCanvas(windowWidth, windowHeight);
+        noLoop();
+        fill('#000')
+        textSize(20);
+        text("This app is designed to run on devices with", 10, height / 2);
+        text("display widths of at least 1100 pixels", 10, height / 2 + 20);
+    }
 }
 
 function draw() {
@@ -238,7 +248,6 @@ function draw() {
                 loadingAnimation = false;
                 showButt();
                 frameRate(20);
-
             }, 2000);
         }
     }
