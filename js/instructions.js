@@ -1,8 +1,8 @@
 const mainInstructions = [
     "space to start/stop",
     "click + drag ↔ to set loop points",
+    "(dragging right to left plays in reverse)",
     "left & right arrows change tracks",
-    "a-l record looped delay buffers",
     "1, 2, 3, 4 for options"
 ];
 
@@ -29,7 +29,7 @@ const secondaryInstructions = [
     [
         "scroll ↕ : volume",
         "scroll ↔ : pan",
-        " ",
-        " "
+        "A-L keys record/play/stop",
+        "looped delay buffers"
     ]
 ]

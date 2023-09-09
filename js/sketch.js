@@ -384,7 +384,7 @@ function keyPressed() {
         } else {
             secondaryInstructions[0][0] = "mouse x : pitch"
         }
-    } else if (key === "a" || key === "s" || key === "d" || key === "f" || key === "g") {
+    } else if (key === "a" || key === "s" || key === "d" || key === "f" || key === "g" || key === "h" || key === "j" || key === "k" || key === "l") {
         if (!feedbackLoop) {
             cnv.style('filter', 'hue-rotate(25deg)');
             looper.delayTime.value = loopTime;
