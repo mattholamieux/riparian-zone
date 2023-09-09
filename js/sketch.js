@@ -29,18 +29,25 @@ let pathLength;
 let pathCounter = 0;
 let loadingAnimation = true;
 let firstLoop = true;
+let feedbackLoop = false;
+let loopTime = 4;
 
 // Instantiate Tone.GrainPlayer object
 const player = new Tone.GrainPlayer(buffers[bufferIndex]);
-const fft = new Tone.FFT({
-    size: 16
-})
 
 const delay = new Tone.PingPongDelay({
-    delayTime: "16n",
+    delayTime: 2,
+    maxDelay: 4,
     feedback: 0,
     wet: delayAmount
 })
+
+const looper = new Tone.FeedbackDelay({
+    delayTime: 8,
+    maxDelay: 16,
+    feedback: 0,
+    wet: 1
+});
 
 const cheby = new Tone.Chebyshev({
     oversample: "none",
@@ -64,7 +71,9 @@ const reverb = new Tone.Reverb({
     wet: 0
 });
 
-const gain = new Tone.Gain(gainVal);
+const gainOne = new Tone.Gain(gainVal);
+const looperGain = new Tone.Gain(0);
+const looperPreGain = new Tone.Gain(0);
 const panner = new Tone.Panner(panVal);
 
 function preload() {
@@ -87,9 +96,11 @@ function setup() {
         player.playbackRate = 1;
         player.overlap = overlap;
         player.grainSize = grainSize;
+        looperGain.toDestination();
         reverb.toDestination();
-        reverb.connect(fft);
-        player.chain(gain, crusher, cheby, filterNode, panner, delay, reverb);
+        player.chain(gainOne, crusher, cheby, filterNode, panner, delay, reverb);
+        looperPreGain.chain(looper, looperGain);
+        reverb.connect(looperPreGain);
         player.loopStart = 0;
         player.loopEnd = buffers[bufferIndex].duration;
         pressedPoint = 0;
@@ -223,7 +234,7 @@ function draw() {
                     }
                 } else if (state === 2) {
                     if (mouseX < width && mouseX > 0) {
-                        let delayTime = (mouseX / width) * 4;
+                        let delayTime = (mouseX / width) * 2;
                         delay.delayTime.rampTo(delayTime, 0.5);
                     }
                     if (mouseY < height && mouseY > 0) {
@@ -281,7 +292,7 @@ function calculateLoop() {
     // Calculate loop start and end points in relation to current buffer's duration
     loopStart = pressedPoint * buffers[bufferIndex].duration;
     loopEnd = releasePoint * buffers[bufferIndex].duration;
-    gain.gain.rampTo(0, 1);
+    gainOne.gain.rampTo(0, 1);
     player.stop("+1")
         // If mouse dragged left to right, play forwards
     if (loopStart < loopEnd) {
@@ -290,7 +301,7 @@ function calculateLoop() {
         player.reverse = false;
         if (player.state === "started") {
             player.sync().start("+1.01", loopStart);
-            gain.gain.rampTo(1, 1, "+1.01");
+            gainOne.gain.rampTo(1, 1, "+1.01");
         }
     } else { // otherwise, play backwards
         player.loopStart = loopEnd;
@@ -298,21 +309,32 @@ function calculateLoop() {
         player.reverse = true;
         if (player.state === "started") {
             player.sync().start("+1.01", loopEnd);
-            gain.gain.rampTo(1, 1, "+1.01");
+            gainOne.gain.rampTo(1, 1, "+1.01");
         }
     }
 }
 
 function keyPressed() {
+    if (key === "a") {
+        loopTime = 1;
+    } else if (key === "s") {
+        loopTime = 2;
+    } else if (key === "d") {
+        loopTime = 4;
+    } else if (key === "f") {
+        loopTime = 8;
+    } else if (key === "g") {
+        loopTime = 16;
+    }
     // start and stop the player with the space bar
     if (key === " ") {
         if (player.state === "stopped") {
             initializeTone();
             player.sync().start("+0.5", loopStart);
-            gain.gain.rampTo(1, 1, "+0.5");
+            gainOne.gain.rampTo(1, 1, "+0.5");
             cnv.style('filter', 'grayscale(0%)');
         } else {
-            gain.gain.rampTo(0, 1);
+            gainOne.gain.rampTo(0, 1);
             player.stop("+1");
             cnv.style('filter', 'grayscale(50%)');
         }
@@ -344,6 +366,25 @@ function keyPressed() {
             secondaryInstructions[0] = "mouse x : octave"
         } else {
             secondaryInstructions[0] = "mouse x : pitch"
+        }
+    } else if (key === "a" || key === "s" || key === "d" || key === "f" || key === "g") {
+        if (!feedbackLoop) {
+            cnv.style('filter', 'hue-rotate(25deg)');
+            looper.delayTime.value = loopTime;
+            // reverb.connect(looperPreGain);
+            looperPreGain.gain.rampTo(1, 1);
+            looper.feedback.rampTo(1, 1);
+            feedbackLoop = true;
+            setTimeout(function() {
+                // reverb.disconnect(looperPreGain);
+                looperGain.gain.rampTo(1, 1);
+                looperPreGain.gain.rampTo(0, 1);
+                cnv.style('filter', 'contrast(100%)');
+            }, (loopTime * 1000));
+        } else {
+            feedbackLoop = false;;
+            looper.feedback.value = 0;
+            looperGain.gain.rampTo(0, 1)
         }
     }
 }
@@ -434,7 +475,7 @@ function trackPad(event) {
                 panVal += 0.01;
             }
         }
-        gain.gain.value = gainVal;
+        gainOne.gain.value = gainVal;
         panner.pan.value = panVal;
     }
 }
@@ -452,10 +493,7 @@ document.addEventListener("DOMContentLoaded", function(event) {
     const sidebar = document.querySelector('.sidebar');
     const myButton = document.querySelector('button');
     myButton.onclick = function(event) {
-        console.log(event)
         event.target.blur();
-        // event.stopPropagation();
-        // event.preventDefault();
         sidebar.classList.toggle('sidebar_small');
     }
     path = document.getElementById('path1')
