@@ -131,9 +131,18 @@ function draw() {
                 text(mainInstructions[i], 20, 20 * [i] + 30);
             }
             textAlign(RIGHT);
-            for (i = state * 4; i < (state * 4) + 4; i++) {
-                text(secondaryInstructions[i], width - 20, 20 * [i] + 30);
+            let instructionChunk = secondaryInstructions[state];
+            for (let i = 0; i < instructionChunk.length; i++) {
+                text(instructionChunk[i], width - 20, 20 * [i] + 30);
             }
+            // for (i = state * 4; i < (state * 4) + 4; i++) {
+            //     let chunk = secondaryInstructions[i]
+            //     console.log(chunk)
+            //         // for (let j = 0; j < chunk.length; j++) {
+            //         //     text(chunk[j], width - 20, 20 * j + 30);
+            //         // }
+            //         // text(secondaryInstructions[i], width - 20, 20 * [i] + 30);
+            // }
 
             // Draw rect to indicate loop start and end
             rectMode(CORNER);
@@ -316,15 +325,23 @@ function calculateLoop() {
 
 function keyPressed() {
     if (key === "a") {
-        loopTime = 1;
+        loopTime = 0.25;
     } else if (key === "s") {
-        loopTime = 2;
+        loopTime = 0.5;
     } else if (key === "d") {
-        loopTime = 4;
+        loopTime = 1;
     } else if (key === "f") {
-        loopTime = 8;
+        loopTime = 2;
     } else if (key === "g") {
+        loopTime = 3;
+    } else if (key === "h") {
+        loopTime = 4;
+    } else if (key === "j") {
+        loopTime = 8;
+    } else if (key === "k") {
         loopTime = 16;
+    } else if (key === "l") {
+        loopTime = 32;
     }
     // start and stop the player with the space bar
     if (key === " ") {
@@ -363,27 +380,27 @@ function keyPressed() {
     } else if (key === "Shift") {
         octaveLock = !octaveLock;
         if (octaveLock) {
-            secondaryInstructions[0] = "mouse x : octave"
+            secondaryInstructions[0][0] = "mouse x : octave"
         } else {
-            secondaryInstructions[0] = "mouse x : pitch"
+            secondaryInstructions[0][0] = "mouse x : pitch"
         }
-    } else if (key === "a" || key === "s" || key === "d" || key === "f" || key === "g") {
+    } else if (key === "a" || key === "s" || key === "d" || key === "f" || key === "g" || key === "h" || key === "j" || key === "k" || key === "l") {
         if (!feedbackLoop) {
             cnv.style('filter', 'hue-rotate(25deg)');
             looper.delayTime.value = loopTime;
-            // reverb.connect(looperPreGain);
-            looperPreGain.gain.rampTo(1, 1);
-            looper.feedback.rampTo(1, 1);
+            looperPreGain.gain.rampTo(1, 0.1);
+            looper.feedback.rampTo(1, 0.1);
             feedbackLoop = true;
             setTimeout(function() {
-                // reverb.disconnect(looperPreGain);
-                looperGain.gain.rampTo(1, 1);
-                looperPreGain.gain.rampTo(0, 1);
-                cnv.style('filter', 'contrast(100%)');
+                looperGain.gain.rampTo(1, 0.1);
+                looperPreGain.gain.rampTo(0, 0.1);
+                cnv.style('filter', 'grayscale(50%)');
+                gainOne.gain.rampTo(0, 1);
+                player.stop("+1");
             }, (loopTime * 1000));
         } else {
             feedbackLoop = false;;
-            looper.feedback.value = 0;
+            looper.feedback.rampTo(0, 1);
             looperGain.gain.rampTo(0, 1)
         }
     }

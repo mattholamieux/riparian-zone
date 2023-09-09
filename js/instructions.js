@@ -7,20 +7,29 @@ const mainInstructions = [
 ];
 
 const secondaryInstructions = [
-    "mouse x : pitch",
-    "mouse y : rate",
-    "scroll ↕ : grain size",
-    "scroll ↔ : grain overlap",
-    "mouse x : filter frequency",
-    "mouse y : filter resonance",
-    "scroll ↕ : bitcrush amount",
-    "scroll ↔ : bit depth",
-    "mouse x : delay time",
-    "mouse y : delay feedback",
-    "scroll ↕ : delay amount",
-    "scroll ↔ : reverb amount",
-    "scroll ↕ : volume",
-    "scroll ↔ : pan",
-    " ",
-    " "
+    [
+        "mouse x : pitch",
+        "mouse y : rate",
+        "scroll ↕ : grain size",
+        "scroll ↔ : grain overlap",
+        "shift locks pitch to octaves"
+    ],
+    [
+        "mouse x : filter frequency",
+        "mouse y : filter resonance",
+        "scroll ↕ : bitcrush amount",
+        "scroll ↔ : bit depth",
+    ],
+    [
+        "mouse x : delay time",
+        "mouse y : delay feedback",
+        "scroll ↕ : delay amount",
+        "scroll ↔ : reverb amount",
+    ],
+    [
+        "scroll ↕ : volume",
+        "scroll ↔ : pan",
+        "A-L keys record/play/stop",
+        "looped delay buffers"
+    ]
 ]
