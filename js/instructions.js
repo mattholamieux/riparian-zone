@@ -29,7 +29,7 @@ const secondaryInstructions = [
     [
         "scroll ↕ : volume",
         "scroll ↔ : pan",
-        "A-L keys record/play/stop",
+        "A-L keys record/clear",
         "looped delay buffers"
     ]
 ]

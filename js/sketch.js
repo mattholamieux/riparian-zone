@@ -29,8 +29,10 @@ let pathLength;
 let pathCounter = 0;
 let loadingAnimation = true;
 let firstLoop = true;
+let looperState = 0;
 let feedbackLoop = false;
 let loopTime = 4;
+let prevKey = "";
 
 // Instantiate Tone.GrainPlayer object
 const player = new Tone.GrainPlayer(buffers[bufferIndex]);
@@ -135,14 +137,6 @@ function draw() {
             for (let i = 0; i < instructionChunk.length; i++) {
                 text(instructionChunk[i], width - 20, 20 * [i] + 30);
             }
-            // for (i = state * 4; i < (state * 4) + 4; i++) {
-            //     let chunk = secondaryInstructions[i]
-            //     console.log(chunk)
-            //         // for (let j = 0; j < chunk.length; j++) {
-            //         //     text(chunk[j], width - 20, 20 * j + 30);
-            //         // }
-            //         // text(secondaryInstructions[i], width - 20, 20 * [i] + 30);
-            // }
 
             // Draw rect to indicate loop start and end
             rectMode(CORNER);
@@ -196,6 +190,17 @@ function draw() {
             fill(48, 84, 49, panVelocity);
             rect(panDisplay, height - 10, 10, 10);
             panVelocity = 0;
+
+
+            if (looperState === 1) {
+                fill("#FF000030");
+            } else if (looperState === 2) {
+                fill("#305431")
+            } else {
+                fill("#bccf7530")
+            }
+            noStroke();
+            rect(20, height - 20, 10, 10);
 
             // Affect player's tune and rate with mouseX and mouseY
             if (player.state === "started") {
@@ -386,12 +391,13 @@ function keyPressed() {
         }
     } else if (key === "a" || key === "s" || key === "d" || key === "f" || key === "g" || key === "h" || key === "j" || key === "k" || key === "l") {
         if (!feedbackLoop) {
-            cnv.style('filter', 'hue-rotate(25deg)');
+            looperState = 1;
             looper.delayTime.value = loopTime;
             looperPreGain.gain.rampTo(1, 0.1);
             looper.feedback.rampTo(1, 0.1);
             feedbackLoop = true;
             setTimeout(function() {
+                looperState = 2;
                 looperGain.gain.rampTo(1, 0.1);
                 looperPreGain.gain.rampTo(0, 0.1);
                 cnv.style('filter', 'grayscale(50%)');
@@ -399,10 +405,28 @@ function keyPressed() {
                 player.stop("+1");
             }, (loopTime * 1000));
         } else {
-            feedbackLoop = false;;
-            looper.feedback.rampTo(0, 1);
-            looperGain.gain.rampTo(0, 1)
+            if (key === prevKey) {
+                looperState = 1;
+                looper.delayTime.value = loopTime;
+                looperPreGain.gain.rampTo(1, 0.1);
+                looper.feedback.rampTo(1, 0.1);
+                feedbackLoop = true;
+                setTimeout(function() {
+                    looperState = 2;
+                    looperGain.gain.rampTo(1, 0.1);
+                    looperPreGain.gain.rampTo(0, 0.1);
+                    cnv.style('filter', 'grayscale(50%)');
+                    gainOne.gain.rampTo(0, 1);
+                    player.stop("+1");
+                }, (loopTime * 1000));
+            } else {
+                looperState = 0;
+                feedbackLoop = false;;
+                looper.feedback.rampTo(0, 1);
+                looperGain.gain.rampTo(0, 1);
+            }
         }
+        prevKey = key;
     }
 }
 
