@@ -227,7 +227,7 @@ function initCanvasAndAudio() {
     player.grainSize = grainSize;
     looperGain.toDestination();
     reverb.toDestination();
-    player.chain(mainGain, crusher, cheby, filterNode, panner, delay, reverb);
+    player.chain(mainGain, crusher, filterNode, panner, delay, reverb);
     looperPreGain.chain(looper, looperGain);
     reverb.connect(looperPreGain);
     player.loopStart = 0;

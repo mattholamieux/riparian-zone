@@ -21,7 +21,6 @@ let delayAmount = 0;
 let delayDisplay;
 let reverbAmount = 0;
 let reverbDisplay;
-let chebyOrder = 1;
 let bitWet = 0;
 let gainVal = 0.7;
 let panVal = 0;
@@ -58,11 +57,6 @@ const looper = new Tone.FeedbackDelay({
     maxDelay: 33,
     feedback: 0,
     wet: 1
-});
-
-const cheby = new Tone.Chebyshev({
-    oversample: "none",
-    order: 1
 });
 
 const filterNode = new Tone.Filter({
