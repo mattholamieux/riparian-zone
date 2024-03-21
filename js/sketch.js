@@ -143,6 +143,15 @@ function keyPressed() {
         case "Shift":
             lockOctaves();
             break;
+        case "r":
+            if (isRecording) {
+                recorder2.stop();
+                isRecording = false;
+            } else {
+                recorder2.start();
+                isRecording = true;
+            }
+            break;
     }
 }
 
@@ -194,11 +203,16 @@ audio_file.onchange = function() {
 };
 
 function drawBackground() {
-    background("#bccf7530");
+    if (isRecording) {
+        background("#f9605930");
+    } else {
+        background("#bccf7530");
+    }
     imageMode(CENTER);
     image(rzSvg, width / 2, height / 2);
     noStroke();
     fill("#305431")
+        // fill("#FF0000")
     textSize(20);
     textLeading(5);
     textFont("serif");
@@ -232,6 +246,7 @@ function initCanvasAndAudio() {
     reverb.connect(looperPreGain);
     player.loopStart = 0;
     player.loopEnd = buffers[bufferIndex].duration;
+    reverb.connect(recDest2);
 }
 
 function deviceErrorMessage() {
@@ -374,11 +389,13 @@ function changeDelayTimeAndFback() {
 
 function startStopPlayer() {
     if (player.state === "stopped") {
+        console.log('start player')
         initializeTone();
         player.sync().start("+0.5", loopStart);
         mainGain.gain.rampTo(1, 1, "+0.5");
         cnv.style('filter', 'grayscale(0%)');
     } else {
+        console.log('stop player')
         mainGain.gain.rampTo(0, 1);
         player.stop("+1");
         cnv.style('filter', 'grayscale(50%)');

@@ -41,6 +41,10 @@ let looperState = 0;
 let feedbackLoop = false;
 let loopTime = 4;
 let prevKey = "";
+let isRecording = false;
+let $audio = document.getElementById('myAudio');
+let recorder2, recDest2;
+audioRecorder();
 
 // Instantiate Tone.GrainPlayer object
 const player = new Tone.GrainPlayer(buffers[bufferIndex]);
